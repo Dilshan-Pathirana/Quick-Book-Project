@@ -18,7 +18,7 @@ export function clearToken() {
 }
 
 export function useAuthToken() {
-  const [token, setTokenState] = useState<string | null>(null);
+  const [token, setTokenState] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     setTokenState(getToken());

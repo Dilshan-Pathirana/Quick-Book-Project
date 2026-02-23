@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token === null) return;
+    if (token === undefined) return;
     if (!token) {
       router.push('/login');
       return;

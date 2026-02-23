@@ -9,7 +9,7 @@ export function useProtected() {
   const { token, clear } = useAuthToken();
 
   useEffect(() => {
-    if (token === null) return;
+    if (token === undefined) return;
     if (!token) router.push('/login');
   }, [token, router]);
 
