@@ -25,6 +25,11 @@
 
 6. Deploy.
 
+### If Railway shows: "The datasource.url property is required in your Prisma config file"
+
+- Ensure your API service is deploying from the `api` root directory using the provided Dockerfile.
+- Ensure the Railway Postgres `DATABASE_URL` variable is present on the API service (linked from the Postgres service).
+
 ### Verify
 
 - Open `https://<your-api-service>.up.railway.app/api/v1` (should return a hello string)

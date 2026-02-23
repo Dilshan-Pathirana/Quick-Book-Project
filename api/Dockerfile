@@ -6,6 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 COPY nest-cli.json tsconfig.json tsconfig.build.json ./
 COPY src ./src
 

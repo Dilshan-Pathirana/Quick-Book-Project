@@ -18,6 +18,6 @@ async function bootstrap() {
   app.setGlobalPrefix(config.get<string>('API_GLOBAL_PREFIX') ?? 'api/v1');
   app.enableCors();
 
-  await app.listen(config.get<number>('PORT') ?? 3001);
+  await app.listen(config.get<number>('PORT') ?? 3001, '0.0.0.0');
 }
 bootstrap();
