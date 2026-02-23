@@ -1,0 +1,128 @@
+PART 2 — REST API ENDPOINTS (Complete Design)
+
+Base URL:
+
+/api/v1/
+
+Authentication:
+
+JWT based
+
+Role-based middleware
+
+🔐 AUTH
+POST   /auth/login
+POST   /auth/register
+POST   /auth/logout
+GET    /auth/me
+👤 USERS & ROLES
+GET    /users
+POST   /users
+GET    /users/:id
+PUT    /users/:id
+DELETE /users/:id
+GET    /roles
+👥 CUSTOMERS
+GET    /customers?search=kam
+POST   /customers
+GET    /customers/:id
+PUT    /customers/:id
+DELETE /customers/:id
+GET    /customers/:id/transactions
+
+Autocomplete:
+
+GET /customers/autocomplete?q=di
+🎥 EQUIPMENT
+GET    /equipment
+POST   /equipment
+GET    /equipment/:id
+PUT    /equipment/:id
+DELETE /equipment/:id
+
+Availability check:
+
+GET /equipment/:id/availability?start=2026-02-01&end=2026-02-03
+🧾 QUOTATIONS
+GET    /quotations
+POST   /quotations
+GET    /quotations/:id
+PUT    /quotations/:id
+DELETE /quotations/:id
+POST   /quotations/:id/send-email
+POST   /quotations/:id/send-whatsapp
+POST   /quotations/:id/convert-to-invoice
+💳 INVOICES
+GET    /invoices
+POST   /invoices
+GET    /invoices/:id
+PUT    /invoices/:id
+DELETE /invoices/:id
+POST   /invoices/:id/generate-pdf
+POST   /invoices/:id/send-email
+POST   /invoices/:id/send-whatsapp
+💰 PAYMENTS
+POST   /payments
+GET    /payments/:id
+GET    /invoices/:id/payments
+📦 RENTALS
+GET    /rentals
+POST   /rentals
+PUT    /rentals/:id/mark-out
+PUT    /rentals/:id/mark-returned
+PUT    /rentals/:id/report-damage
+🛠 MAINTENANCE
+POST   /equipment/:id/maintenance
+GET    /equipment/:id/maintenance
+📊 ANALYTICS
+Business Overview
+GET /analytics/dashboard
+Revenue Trends
+GET /analytics/revenue?from=2026-01-01&to=2026-12-31
+Equipment Performance
+GET /analytics/equipment/performance
+GET /analytics/equipment/:id/trend
+GET /analytics/equipment/best
+GET /analytics/equipment/worst
+Customer Analytics
+GET /analytics/customers/top
+📚 ACCOUNTING
+GET /accounts
+POST /accounts
+GET /journal-entries
+GET /journal-entries/:id
+POST /journal-entries
+
+Reports:
+
+GET /reports/profit-loss
+GET /reports/balance-sheet
+GET /reports/cash-flow
+GET /reports/vat-summary
+🧾 PDF & FILES
+GET /files/:fileId
+⚙️ SYSTEM EVENTS (Internal)
+
+When:
+
+Invoice created → auto journal entry
+
+Payment recorded → update balance
+
+Rental marked returned → equipment status AVAILABLE
+
+Handled through service-layer event dispatch.
+
+🏁 FINAL RESULT
+
+This is a:
+
+✔ Full rental operations engine
+✔ Full bookkeeping system
+✔ Full accounting-compliant double-entry system
+✔ Analytics engine
+✔ LKR VAT optimized
+✔ Mobile-first ready
+
+It is significantly more specialized than general platforms like
+QuickBooks Online.

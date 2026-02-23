@@ -1,0 +1,490 @@
+🎥 Product: Camera Rental & Visual Art Financial System (Sri Lanka Edition)
+
+A mobile-first, LKR-optimized, full operational + accounting system tailored for:
+
+Equipment rental houses
+
+Film production support companies
+
+Photography studios
+
+Visual art agencies
+
+1️⃣ Core Operational Flow (Rental Lifecycle Engine)
+
+This is the heart of the system.
+
+A. Customer Management
+
+Each customer record must include:
+
+Full name
+
+Company name (optional)
+
+NIC / BR number
+
+Phone number
+
+WhatsApp number
+
+Email
+
+Address
+
+Customer type (Individual / Production House / Agency)
+
+Credit limit
+
+Security deposit history
+
+Rental history
+
+Outstanding balance
+
+Smart Search
+
+Autocomplete from first letter
+
+Search by:
+
+Name
+
+Phone
+
+Company
+
+Fast indexed query (PostgreSQL full-text search)
+
+2️⃣ Equipment Management System
+
+Each equipment item must contain:
+
+Equipment name
+
+Category (Camera / Lens / Light / Audio / Grip / Drone)
+
+Serial number
+
+Unique internal ID
+
+Purchase cost
+
+Rental rate (daily / hourly / package)
+
+Replacement value
+
+Status:
+
+Available
+
+Reserved
+
+Rented
+
+Under maintenance
+
+Condition notes
+
+Depreciation rate
+
+Location (Warehouse A / Warehouse B)
+
+Optional:
+
+Barcode / QR code for quick scanning
+
+3️⃣ Quotation → Invoice Flow (Structured Workflow)
+Step 1 – Create Quotation
+
+Select customer (auto-suggest dropdown)
+
+Select rental period
+
+Add equipment
+
+System auto-checks availability
+
+Manually type rental price (as required)
+
+Add optional:
+
+Delivery fee
+
+Operator fee
+
+Discount
+
+Security deposit
+
+VAT automatically calculated (if applicable)
+
+Quotation PDF generated.
+
+Step 2 – Convert Quotation to Invoice
+
+One-click convert
+
+Equipment status changes to “Reserved” or “Rented”
+
+Invoice number auto-generated
+
+Double-entry accounting entry created automatically
+
+4️⃣ Invoice PDF Generation System
+
+Professional-grade PDF must include:
+
+Company logo
+
+Company registration details
+
+VAT number
+
+Customer details
+
+Equipment breakdown
+
+Rental duration
+
+Unit rate
+
+Subtotal
+
+VAT
+
+Total
+
+Payment instructions
+
+Bank details
+
+Terms & conditions
+
+PDF must be:
+
+Downloadable
+
+Stored in cloud
+
+Version-controlled
+
+5️⃣ Sending Invoice to Customer
+
+Two built-in channels:
+
+A. Email
+
+SMTP integration
+
+Auto-filled from customer record
+
+Customizable email template
+
+PDF attachment
+
+Delivery log stored
+
+B. WhatsApp
+
+WhatsApp Business API integration
+
+Preformatted message
+
+PDF link
+
+Delivery confirmation log
+
+Message example:
+
+“Dear [Name], please find your rental invoice attached. Thank you.”
+
+6️⃣ Equipment Availability Calendar (Critical)
+
+Visual calendar showing:
+
+Equipment bookings
+
+Overlapping rentals
+
+Maintenance periods
+
+Color-coded status
+
+Mobile-friendly timeline view.
+
+Prevents double booking.
+
+7️⃣ Rental Agreement & Security Deposit Tracking
+
+For professional rental operations:
+
+Track deposit amount
+
+Record deposit refund
+
+Deduct damages automatically
+
+Link damages to equipment
+
+Generate deposit receipt PDF
+
+8️⃣ Maintenance & Damage Tracking
+
+Each equipment item:
+
+Service history
+
+Maintenance cost log
+
+Downtime tracking
+
+Repair frequency
+
+Total maintenance cost over lifetime
+
+Helps measure ROI of each asset.
+
+9️⃣ Complete Analytics & Performance Engine
+
+Now we design the analytics system properly.
+
+A. Business Performance Dashboard
+Revenue Metrics
+
+Total revenue (monthly / yearly)
+
+Rental revenue vs service revenue
+
+Outstanding receivables
+
+Net profit (if expenses included)
+
+Performance Indicators
+
+Equipment utilization rate
+
+Average rental duration
+
+Revenue per customer
+
+Repeat customer rate
+
+B. Equipment Performance Analytics
+
+For each equipment:
+
+Total income generated
+
+Rental frequency
+
+Utilization percentage
+
+Downtime percentage
+
+Maintenance cost
+
+Net profitability
+
+ROI vs purchase price
+
+Best Performing Equipment
+
+Sorted by:
+
+Revenue
+
+Utilization
+
+Profit margin
+
+Worst Performing Equipment
+
+Sorted by:
+
+Low usage
+
+High maintenance
+
+Low ROI
+
+C. Income Trend Analysis
+
+Trend views:
+
+Revenue per equipment (monthly line graph)
+
+Revenue by category
+
+Revenue by customer
+
+Revenue by season
+
+Peak rental months
+
+Weekday vs weekend trends
+
+All chart-driven.
+
+D. Predictive (Without AI)
+
+Even without AI:
+
+30-day forward confirmed revenue (based on future bookings)
+
+Projected cash inflow from unpaid invoices
+
+Seasonal comparison (this month vs same month last year)
+
+🔟 Financial Module Integration
+
+This must connect to your bookkeeping engine:
+
+Auto journal entry on invoice creation
+
+Auto revenue recognition
+
+VAT liability tracking
+
+Expense logging
+
+Asset depreciation tracking
+
+Profit & Loss report
+
+Balance Sheet
+
+Cash Flow Statement
+
+1️⃣1️⃣ Asset Depreciation Engine
+
+Each equipment:
+
+Purchase value
+
+Depreciation method:
+
+Straight-line
+
+Reducing balance
+
+Monthly depreciation calculation
+
+Net book value display
+
+This turns it into a real accounting-grade system.
+
+1️⃣2️⃣ Multi-Branch Capability (Future Ready)
+
+If they expand:
+
+Multiple warehouse support
+
+Branch-level revenue
+
+Consolidated financial view
+
+1️⃣3️⃣ Mobile-First Operational Shortcuts
+
+Since this is used on shoots:
+
+Quick rent mode (under 30 seconds)
+
+QR scan equipment
+
+Quick customer search
+
+One-tap “Mark as Returned”
+
+Instant damage report (photo upload)
+
+1️⃣4️⃣ Security & Audit Layer
+
+Full activity log
+
+Track who:
+
+Created invoice
+
+Edited price
+
+Deleted transaction
+
+Immutable accounting records
+
+Role-based permissions
+
+1️⃣5️⃣ Technical Architecture (Production Grade)
+Database (PostgreSQL)
+
+Core tables:
+
+users
+
+customers
+
+equipment
+
+rentals
+
+quotations
+
+invoices
+
+invoice_items
+
+payments
+
+deposits
+
+maintenance_logs
+
+depreciation_records
+
+journal_entries
+
+activity_logs
+
+Proper indexing on:
+
+customer name
+
+equipment ID
+
+invoice number
+
+Backend
+
+NestJS
+
+Prisma ORM
+
+REST API
+
+File storage (PDFs)
+
+Event-driven state updates
+
+Frontend
+
+Next.js
+
+Tailwind
+
+PWA enabled
+
+IndexedDB for offline support
+
+Chart.js / Recharts for analytics
+
+Final System Identity
+
+This is not:
+
+“Accounting software”
+
+This is:
+
+“Rental Operations & Financial Control Platform for Visual Production Businesses in Sri Lanka”
+
+And it is significantly more specialized than generic systems like QuickBooks Online.

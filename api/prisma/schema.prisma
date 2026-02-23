@@ -1,0 +1,521 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RoleName {
+  OWNER
+  ACCOUNTANT
+  SALES
+  INVENTORY_MANAGER
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum EquipmentStatus {
+  AVAILABLE
+  RESERVED
+  RENTED
+  MAINTENANCE
+}
+
+enum DepreciationMethod {
+  STRAIGHT_LINE
+  REDUCING_BALANCE
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  CONVERTED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  PARTIAL
+  OVERDUE
+}
+
+enum RentalStatus {
+  RESERVED
+  OUT
+  RETURNED
+  DAMAGED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK
+  TRANSFER
+  WALLET
+}
+
+enum DepositStatus {
+  HELD
+  REFUNDED
+  PARTIALLY_DEDUCTED
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
+enum JournalReferenceType {
+  INVOICE
+  PAYMENT
+  MANUAL
+}
+
+enum ActivityAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+}
+
+enum EntityType {
+  QUOTATION
+  INVOICE
+  PAYMENT
+  RENTAL
+  EQUIPMENT
+  CUSTOMER
+  JOURNAL_ENTRY
+  FILE
+}
+
+enum DeliveryChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum DeliveryStatus {
+  QUEUED
+  SENT
+  FAILED
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        RoleName @unique
+  description String?
+  users       User[]
+
+  @@map("roles")
+}
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  fullName     String        @map("full_name")
+  email        String        @unique
+  passwordHash String        @map("password_hash")
+  phone        String?
+  roleId       String        @map("role_id")
+  role         Role          @relation(fields: [roleId], references: [id])
+  isActive     Boolean       @default(true) @map("is_active")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  activityLogs ActivityLog[]
+
+  createdQuotations Quotation[]    @relation("QuotationCreatedBy")
+  createdInvoices   Invoice[]      @relation("InvoiceCreatedBy")
+  recordedPayments  Payment[]      @relation("PaymentRecordedBy")
+  maintenanceLogs   EquipmentMaintenanceLog[]
+  journalEntries    JournalEntry[]
+
+  @@index([roleId])
+
+  @@map("users")
+}
+
+model Customer {
+  id             String      @id @default(uuid()) @db.Uuid
+  customerType   CustomerType @map("customer_type")
+  fullName       String      @map("full_name")
+  companyName    String?     @map("company_name")
+  nicOrBr        String?     @map("nic_or_br")
+  email          String?
+  phone          String?
+  whatsappNumber String?     @map("whatsapp_number")
+  address        String?
+  creditLimit    Decimal?    @db.Decimal(12, 2) @map("credit_limit")
+  notes          String?
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  quotations Quotation[]
+  invoices   Invoice[]
+
+  @@index([fullName])
+  @@index([companyName])
+  @@index([phone])
+
+  @@map("customers")
+}
+
+model Warehouse {
+  id       String     @id @default(cuid())
+  name     String     @unique
+  location String?
+  equipment Equipment[]
+
+  @@map("warehouses")
+}
+
+model EquipmentCategory {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  equipment Equipment[]
+
+  @@map("equipment_categories")
+}
+
+model Equipment {
+  id                  String               @id @default(uuid()) @db.Uuid
+  categoryId          String               @map("category_id")
+  category            EquipmentCategory    @relation(fields: [categoryId], references: [id])
+  name                String
+  description         String?
+  imageUrl            String?              @map("image_url")
+  isActive            Boolean              @default(true) @map("is_active")
+  serialNumber        String               @unique @map("serial_number")
+  internalCode        String               @unique @map("internal_code")
+  purchaseCost        Decimal?             @db.Decimal(12, 2) @map("purchase_cost")
+  replacementValue    Decimal?             @db.Decimal(12, 2) @map("replacement_value")
+  dailyRate           Decimal?             @db.Decimal(12, 2) @map("daily_rate")
+  hourlyRate          Decimal?             @db.Decimal(12, 2) @map("hourly_rate")
+  status              EquipmentStatus      @default(AVAILABLE)
+  warehouseId         String?              @map("warehouse_id")
+  warehouse           Warehouse?           @relation(fields: [warehouseId], references: [id])
+  purchaseDate        DateTime?            @map("purchase_date")
+  depreciationMethod  DepreciationMethod?  @map("depreciation_method")
+  depreciationRate    Decimal?             @db.Decimal(7, 4) @map("depreciation_rate")
+  conditionNotes      String?              @map("condition_notes")
+  locationLabel       String?              @map("location")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  maintenanceLogs EquipmentMaintenanceLog[]
+  quotationItems  QuotationItem[]
+  invoiceItems    InvoiceItem[]
+  rentals         Rental[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([warehouseId])
+
+  @@map("equipment")
+}
+
+model EquipmentMaintenanceLog {
+  id              String   @id @default(cuid())
+  equipmentId     String   @map("equipment_id") @db.Uuid
+  equipment       Equipment @relation(fields: [equipmentId], references: [id])
+  maintenanceDate DateTime @map("maintenance_date")
+  description     String?
+  cost            Decimal? @db.Decimal(12, 2)
+  downtimeStart   DateTime? @map("downtime_start")
+  downtimeEnd     DateTime? @map("downtime_end")
+  createdById     String?  @map("created_by") @db.Uuid
+  createdBy       User?    @relation(fields: [createdById], references: [id])
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([equipmentId])
+  @@index([maintenanceDate])
+
+  @@map("equipment_maintenance_logs")
+}
+
+model Quotation {
+  id              String          @id @default(uuid()) @db.Uuid
+  quotationNumber String          @unique @map("quotation_number")
+  customerId      String          @map("customer_id") @db.Uuid
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  rentalStartDate DateTime        @map("rental_start_date")
+  rentalEndDate   DateTime        @map("rental_end_date")
+  status          QuotationStatus @default(DRAFT)
+
+  deliveryFee     Decimal?        @db.Decimal(12, 2) @map("delivery_fee")
+  operatorFee     Decimal?        @db.Decimal(12, 2) @map("operator_fee")
+  securityDeposit Decimal?        @db.Decimal(12, 2) @map("security_deposit")
+
+  subtotal        Decimal         @db.Decimal(12, 2)
+  vatAmount       Decimal         @db.Decimal(12, 2) @map("vat_amount")
+  discount        Decimal         @db.Decimal(12, 2) @default(0)
+  totalAmount     Decimal         @db.Decimal(12, 2) @map("total_amount")
+  createdById     String?         @map("created_by") @db.Uuid
+  createdBy       User?           @relation("QuotationCreatedBy", fields: [createdById], references: [id])
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  items   QuotationItem[]
+  invoice Invoice?
+  deliveryLogs DeliveryLog[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([rentalStartDate, rentalEndDate])
+
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id          String    @id @default(cuid())
+  quotationId String    @map("quotation_id") @db.Uuid
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  equipmentId String    @map("equipment_id") @db.Uuid
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  quantity    Int       @default(1)
+  manualPrice Decimal?  @db.Decimal(12, 2) @map("manual_price")
+  rentalDays  Int       @default(1) @map("rental_days")
+  lineTotal   Decimal   @db.Decimal(12, 2) @map("line_total")
+
+  @@index([quotationId])
+  @@index([equipmentId])
+
+  @@map("quotation_items")
+}
+
+model Invoice {
+  id            String       @id @default(uuid()) @db.Uuid
+  invoiceNumber String       @unique @map("invoice_number")
+  customerId    String       @map("customer_id") @db.Uuid
+  customer      Customer     @relation(fields: [customerId], references: [id])
+  quotationId   String?      @unique @map("quotation_id") @db.Uuid
+  quotation     Quotation?   @relation(fields: [quotationId], references: [id])
+  invoiceDate   DateTime     @map("invoice_date")
+  dueDate       DateTime?    @map("due_date")
+  status        InvoiceStatus @default(DRAFT)
+
+  deliveryFee     Decimal?     @db.Decimal(12, 2) @map("delivery_fee")
+  operatorFee     Decimal?     @db.Decimal(12, 2) @map("operator_fee")
+  securityDeposit Decimal?     @db.Decimal(12, 2) @map("security_deposit")
+
+  subtotal      Decimal      @db.Decimal(12, 2)
+  vatAmount     Decimal      @db.Decimal(12, 2) @map("vat_amount")
+  discount      Decimal      @db.Decimal(12, 2) @default(0)
+  totalAmount   Decimal      @db.Decimal(12, 2) @map("total_amount")
+  amountPaid    Decimal      @db.Decimal(12, 2) @default(0) @map("amount_paid")
+  balanceDue    Decimal      @db.Decimal(12, 2) @map("balance_due")
+  pdfUrl        String?      @map("pdf_url")
+  pdfFileId     String?      @map("pdf_file_id")
+  pdfFile       FileObject?  @relation(fields: [pdfFileId], references: [id])
+  createdById   String?      @map("created_by") @db.Uuid
+  createdBy     User?        @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  items         InvoiceItem[]
+  payments      Payment[]
+  rentals       Rental[]
+  deposits      Deposit[]
+  journalEntries JournalEntry[]
+  deliveryLogs  DeliveryLog[]
+
+  @@index([customerId])
+  @@index([quotationId])
+  @@index([status])
+  @@index([invoiceDate])
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  invoiceId   String   @map("invoice_id") @db.Uuid
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  equipmentId String?  @map("equipment_id") @db.Uuid
+  equipment   Equipment? @relation(fields: [equipmentId], references: [id])
+  description String?
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @db.Decimal(12, 2) @map("unit_price")
+  lineTotal   Decimal  @db.Decimal(12, 2) @map("line_total")
+
+  @@index([invoiceId])
+  @@index([equipmentId])
+
+  @@map("invoice_items")
+}
+
+model Rental {
+  id               String      @id @default(cuid())
+  invoiceId         String      @map("invoice_id") @db.Uuid
+  invoice           Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  equipmentId       String      @map("equipment_id") @db.Uuid
+  equipment         Equipment   @relation(fields: [equipmentId], references: [id])
+  rentalStart       DateTime    @map("rental_start")
+  rentalEnd         DateTime    @map("rental_end")
+  actualReturnDate  DateTime?   @map("actual_return_date")
+  status            RentalStatus @default(RESERVED)
+  conditionOut      String?     @map("condition_out")
+  conditionIn       String?     @map("condition_in")
+  damageNotes       String?     @map("damage_notes")
+  createdAt         DateTime    @default(now()) @map("created_at")
+
+  @@index([invoiceId])
+  @@index([equipmentId])
+  @@index([status])
+  @@index([rentalStart, rentalEnd])
+
+  @@map("rentals")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  invoiceId        String        @map("invoice_id") @db.Uuid
+  invoice          Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  paymentDate      DateTime      @map("payment_date")
+  paymentMethod    PaymentMethod @map("payment_method")
+  amount           Decimal       @db.Decimal(12, 2)
+  referenceNumber  String?       @map("reference_number")
+  recordedById     String?       @map("recorded_by") @db.Uuid
+  recordedBy       User?         @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  journalEntries JournalEntry[]
+
+  @@index([invoiceId])
+  @@index([paymentDate])
+
+  @@map("payments")
+}
+
+model Deposit {
+  id              String       @id @default(cuid())
+  invoiceId        String       @map("invoice_id") @db.Uuid
+  invoice          Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount           Decimal      @db.Decimal(12, 2)
+  status           DepositStatus @default(HELD)
+  refundAmount     Decimal?     @db.Decimal(12, 2) @map("refund_amount")
+  deductionAmount  Decimal?     @db.Decimal(12, 2) @map("deduction_amount")
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  @@index([invoiceId])
+
+  @@map("deposits")
+}
+
+model ChartOfAccount {
+  id              String      @id @default(cuid())
+  accountCode     String      @unique @map("account_code")
+  accountName     String      @map("account_name")
+  accountType     AccountType @map("account_type")
+  parentAccountId String?     @map("parent_account_id")
+  parentAccount   ChartOfAccount? @relation("AccountParent", fields: [parentAccountId], references: [id])
+  children        ChartOfAccount[] @relation("AccountParent")
+  journalLines    JournalLine[]
+
+  @@index([accountType])
+
+  @@map("chart_of_accounts")
+}
+
+model JournalEntry {
+  id            String              @id @default(cuid())
+  entryNumber   String              @unique @map("entry_number")
+  referenceType JournalReferenceType @map("reference_type")
+  referenceId   String              @map("reference_id")
+  entryDate     DateTime            @map("entry_date")
+  description   String?
+  createdById   String?             @map("created_by") @db.Uuid
+  createdBy     User?               @relation(fields: [createdById], references: [id])
+
+  invoiceId String? @db.Uuid
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+  paymentId String?
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  lines      JournalLine[]
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  @@index([referenceType, referenceId])
+  @@index([entryDate])
+
+  @@map("journal_entries")
+}
+
+model JournalLine {
+  id             String        @id @default(cuid())
+  journalEntryId String        @map("journal_entry_id")
+  journalEntry   JournalEntry  @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  accountId      String        @map("account_id")
+  account        ChartOfAccount @relation(fields: [accountId], references: [id])
+  debitAmount    Decimal       @db.Decimal(12, 2) @default(0) @map("debit_amount")
+  creditAmount   Decimal       @db.Decimal(12, 2) @default(0) @map("credit_amount")
+
+  @@index([journalEntryId])
+  @@index([accountId])
+
+  @@map("journal_lines")
+}
+
+model ActivityLog {
+  id         String         @id @default(cuid())
+  userId     String?        @map("user_id") @db.Uuid
+  user       User?          @relation(fields: [userId], references: [id])
+  entityType EntityType     @map("entity_type")
+  entityId   String         @map("entity_id")
+  action     ActivityAction
+  timestamp  DateTime       @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+
+  @@map("activity_logs")
+}
+
+model FileObject {
+  id          String   @id @default(cuid())
+  mimeType    String   @map("mime_type")
+  storagePath String   @map("storage_path")
+  originalName String? @map("original_name")
+  version     Int      @default(1)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  invoices Invoice[]
+  deliveryLogs DeliveryLog[]
+
+  @@map("files")
+}
+
+model DeliveryLog {
+  id          String         @id @default(cuid())
+  entityType  EntityType     @map("entity_type")
+  entityId    String         @map("entity_id")
+  channel     DeliveryChannel
+  to          String
+  status      DeliveryStatus @default(QUEUED)
+  detail      String?
+  fileId      String?        @map("file_id")
+  file        FileObject?    @relation(fields: [fileId], references: [id])
+  quotationId String?        @db.Uuid
+  quotation   Quotation?     @relation(fields: [quotationId], references: [id])
+  invoiceId   String?        @db.Uuid
+  invoice     Invoice?       @relation(fields: [invoiceId], references: [id])
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([channel])
+  @@index([status])
+
+  @@map("delivery_logs")
+}

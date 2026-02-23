@@ -1,0 +1,222 @@
+PART 1 — DATABASE SCHEMA (ER STRUCTURE)
+
+I’ll define:
+
+Core Entities
+
+Accounting Entities
+
+Relationship Flow
+
+Key Constraints & Indexing Strategy
+
+1️⃣ USERS & AUTHORIZATION
+1. users
+id (PK, UUID)
+full_name
+email (unique)
+password_hash
+phone
+role_id (FK → roles.id)
+is_active (boolean)
+created_at
+updated_at
+2. roles
+id (PK)
+name
+description
+
+Example roles:
+
+OWNER
+
+ACCOUNTANT
+
+SALES
+
+INVENTORY_MANAGER
+
+2️⃣ CUSTOMER MANAGEMENT
+3. customers
+id (PK, UUID)
+customer_type (INDIVIDUAL | COMPANY)
+full_name
+company_name
+nic_or_br
+email
+phone
+whatsapp_number
+address
+credit_limit
+notes
+created_at
+updated_at
+4. customer_transactions_summary (optional performance table)
+customer_id (PK, FK)
+total_revenue
+total_outstanding
+last_transaction_date
+3️⃣ EQUIPMENT & INVENTORY
+5. equipment_categories
+id (PK)
+name
+6. equipment
+id (PK, UUID)
+category_id (FK)
+name
+serial_number (unique)
+internal_code (unique)
+purchase_cost
+replacement_value
+daily_rate
+hourly_rate
+status (AVAILABLE | RESERVED | RENTED | MAINTENANCE)
+warehouse_id (FK)
+purchase_date
+depreciation_method (STRAIGHT_LINE | REDUCING_BALANCE)
+depreciation_rate
+created_at
+7. warehouses
+id (PK)
+name
+location
+8. equipment_maintenance_logs
+id (PK)
+equipment_id (FK)
+maintenance_date
+description
+cost
+downtime_start
+downtime_end
+created_by (FK → users)
+4️⃣ RENTAL WORKFLOW
+9. quotations
+id (PK, UUID)
+quotation_number (unique)
+customer_id (FK)
+rental_start_date
+rental_end_date
+status (DRAFT | SENT | ACCEPTED | REJECTED | CONVERTED)
+subtotal
+vat_amount
+discount
+total_amount
+created_by (FK)
+created_at
+10. quotation_items
+id (PK)
+quotation_id (FK)
+equipment_id (FK)
+quantity
+manual_price
+rental_days
+line_total
+11. invoices
+id (PK, UUID)
+invoice_number (unique)
+customer_id (FK)
+quotation_id (FK, nullable)
+invoice_date
+due_date
+status (DRAFT | SENT | PAID | PARTIAL | OVERDUE)
+subtotal
+vat_amount
+discount
+total_amount
+amount_paid
+balance_due
+pdf_url
+created_by (FK)
+created_at
+12. invoice_items
+id (PK)
+invoice_id (FK)
+equipment_id (FK)
+description
+quantity
+unit_price
+line_total
+13. rentals
+
+Tracks actual rental lifecycle.
+
+id (PK)
+invoice_id (FK)
+equipment_id (FK)
+rental_start
+rental_end
+actual_return_date
+status (RESERVED | OUT | RETURNED | DAMAGED)
+condition_out
+condition_in
+5️⃣ PAYMENTS & DEPOSITS
+14. payments
+id (PK)
+invoice_id (FK)
+payment_date
+payment_method (CASH | BANK | TRANSFER | WALLET)
+amount
+reference_number
+recorded_by (FK)
+15. deposits
+id (PK)
+invoice_id (FK)
+amount
+status (HELD | REFUNDED | PARTIALLY_DEDUCTED)
+refund_amount
+deduction_amount
+6️⃣ ACCOUNTING ENGINE (DOUBLE ENTRY)
+16. chart_of_accounts
+id (PK)
+account_code (unique)
+account_name
+account_type (ASSET | LIABILITY | EQUITY | INCOME | EXPENSE)
+parent_account_id (self FK)
+17. journal_entries
+id (PK)
+entry_number (unique)
+reference_type (INVOICE | PAYMENT | MANUAL)
+reference_id
+entry_date
+description
+created_by
+18. journal_lines
+id (PK)
+journal_entry_id (FK)
+account_id (FK)
+debit_amount
+credit_amount
+
+Constraint:
+
+Total debit = total credit (enforced at service layer)
+
+7️⃣ ANALYTICS SUPPORT TABLES (Optional Optimized)
+19. equipment_revenue_summary
+equipment_id (PK)
+total_revenue
+total_rentals
+total_days_rented
+total_maintenance_cost
+net_profit
+8️⃣ ACTIVITY & AUDIT
+20. activity_logs
+id (PK)
+user_id (FK)
+entity_type
+entity_id
+action (CREATE | UPDATE | DELETE | STATUS_CHANGE)
+timestamp
+🔗 ER RELATIONSHIP SUMMARY
+
+customers → quotations → invoices → payments
+
+invoices → rentals → equipment
+
+equipment → maintenance_logs
+
+invoices → journal_entries → journal_lines → chart_of_accounts
+
+users → activity_logs
+
+This forms a fully relational financial-grade system.

@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Base ── */
+  --color-background: #f4f6f9;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+
+  /* ── Primary (Blue – actions, highlights) ── */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-foreground: #ffffff;
+  --color-primary-light: #dbeafe;
+
+  /* ── Muted ── */
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+
+  /* ── Borders & inputs ── */
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #3b82f6;
+
+  /* ── Finance semantic colours ── */
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-success-foreground: #ffffff;
+
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-danger-foreground: #ffffff;
+  --color-danger-light: #fee2e2;
+
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-warning-foreground: #ffffff;
+
+  --color-info: #0ea5e9;
+  --color-info-light: #e0f2fe;
+
+  /* ── Radii ── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+}
+
+/* ── Base styles ── */
+:root {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Finance number alignment ── */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* ── Table styles ── */
+.finance-table th { position: sticky; top: 0; z-index: 1; }
+.finance-table tbody tr:nth-child(even) { background-color: var(--color-muted); }
+.finance-table tbody tr { transition: background-color 150ms; }
+.finance-table tbody tr:hover { background-color: var(--color-primary-light); }
+
+/* ── Skeleton pulse ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--color-muted) 25%, #e8ecf1 50%, var(--color-muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}

@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: quick-book-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: quick_book
+    ports:
+      - "5432:5432"
+    volumes:
+      - quick_book_pgdata:/var/lib/postgresql/data
+
+volumes:
+  quick_book_pgdata:

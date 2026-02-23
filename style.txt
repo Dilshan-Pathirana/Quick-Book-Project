@@ -1,0 +1,4159 @@
+```App.tsx
+import React from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom'
+import { Dashboard } from './pages/Dashboard'
+import { Customers } from './pages/Customers'
+import { Equipment } from './pages/Equipment'
+import { Quotations } from './pages/Quotations'
+import { Invoices } from './pages/Invoices'
+import { Calendar } from './pages/Calendar'
+import { Financials } from './pages/Financials'
+// Placeholder components for routes not yet implemented
+const PlaceholderPage = ({ title }: { title: string }) => (
+  <div className="p-8 text-center">
+    <h1 className="text-2xl font-bold text-white mb-4">{title}</h1>
+    <p className="text-slate-400">This module is under construction.</p>
+  </div>
+)
+export function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/equipment" element={<Equipment />} />
+        <Route path="/quotations" element={<Quotations />} />
+        <Route path="/invoices" element={<Invoices />} />
+        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/financials" element={<Financials />} />
+        <Route
+          path="/payments"
+          element={<PlaceholderPage title="Payments" />}
+        />
+        <Route
+          path="/journal"
+          element={<PlaceholderPage title="Journal Entries" />}
+        />
+        <Route
+          path="/users"
+          element={<PlaceholderPage title="Users & Roles" />}
+        />
+        <Route
+          path="/settings"
+          element={<PlaceholderPage title="Settings" />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  )
+}
+
+```
+```components/Header.tsx
+import React from 'react'
+import { Menu, Search, Bell, Plus } from 'lucide-react'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
+interface HeaderProps {
+  onMenuClick: () => void
+}
+export function Header({ onMenuClick }: HeaderProps) {
+  return (
+    <header className="sticky top-0 z-30 h-16 bg-[#0a0f1a]/80 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4 flex-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden text-slate-400"
+          onClick={onMenuClick}
+        >
+          <Menu className="w-5 h-5" />
+        </Button>
+
+        <div className="hidden md:flex relative max-w-md w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Input
+            placeholder="Search customers, equipment, invoices..."
+            className="pl-10 bg-[#111827] border-slate-800 focus:border-amber-500/50"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <Button variant="amber" size="sm" className="hidden sm:flex gap-2">
+          <Plus className="w-4 h-4" />
+          <span>New Rental</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-slate-400 hover:text-amber-500 relative"
+        >
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border border-[#0a0f1a]" />
+        </Button>
+      </div>
+    </header>
+  )
+}
+
+```
+```components/Layout.tsx
+import React, { useState } from 'react'
+import { Sidebar } from './Sidebar'
+import { Header } from './Header'
+interface LayoutProps {
+  children: React.ReactNode
+}
+export function Layout({ children }: LayoutProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  return (
+    <div className="min-h-screen bg-[#0a0f1a] text-slate-200 font-sans selection:bg-amber-500/30">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <div className="lg:ml-64 flex flex-col min-h-screen transition-all duration-300">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+          <div className="max-w-7xl mx-auto space-y-8">{children}</div>
+        </main>
+      </div>
+    </div>
+  )
+}
+
+```
+```components/Sidebar.tsx
+import React from 'react'
+import { NavLink } from 'react-router-dom'
+import {
+  LayoutDashboard,
+  Users,
+  Camera,
+  CalendarDays,
+  FileText,
+  Receipt,
+  CreditCard,
+  BarChart3,
+  BookOpen,
+  Settings,
+  Shield,
+  X,
+} from 'lucide-react'
+import { cn } from '../lib/utils'
+import { Button } from './ui/Button'
+interface SidebarProps {
+  isOpen: boolean
+  onClose: () => void
+}
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const navItems = [
+    {
+      category: 'OPERATIONS',
+      items: [
+        {
+          icon: LayoutDashboard,
+          label: 'Dashboard',
+          path: '/',
+        },
+        {
+          icon: Users,
+          label: 'Customers',
+          path: '/customers',
+        },
+        {
+          icon: Camera,
+          label: 'Equipment',
+          path: '/equipment',
+        },
+        {
+          icon: CalendarDays,
+          label: 'Calendar',
+          path: '/calendar',
+        },
+      ],
+    },
+    {
+      category: 'TRANSACTIONS',
+      items: [
+        {
+          icon: FileText,
+          label: 'Quotations',
+          path: '/quotations',
+        },
+        {
+          icon: Receipt,
+          label: 'Invoices',
+          path: '/invoices',
+        },
+        {
+          icon: CreditCard,
+          label: 'Payments',
+          path: '/payments',
+        },
+      ],
+    },
+    {
+      category: 'FINANCE',
+      items: [
+        {
+          icon: BarChart3,
+          label: 'Financial Reports',
+          path: '/financials',
+        },
+        {
+          icon: BookOpen,
+          label: 'Journal Entries',
+          path: '/journal',
+        },
+      ],
+    },
+    {
+      category: 'SETTINGS',
+      items: [
+        {
+          icon: Shield,
+          label: 'Users & Roles',
+          path: '/users',
+        },
+        {
+          icon: Settings,
+          label: 'Settings',
+          path: '/settings',
+        },
+      ],
+    },
+  ]
+  return (
+    <>
+      {/* Mobile Overlay */}
+      <div
+        className={cn(
+          'fixed inset-0 bg-black/80 z-40 lg:hidden transition-opacity duration-300',
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
+        )}
+        onClick={onClose}
+      />
+
+      {/* Sidebar Container */}
+      <aside
+        className={cn(
+          'fixed top-0 left-0 z-50 h-screen w-64 bg-[#0a0f1a] border-r border-white/5 transition-transform duration-300 lg:translate-x-0 flex flex-col',
+          isOpen ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+        {/* Logo Area */}
+        <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+              <Camera className="w-5 h-5 text-black" />
+            </div>
+            <span className="font-bold text-lg tracking-tight text-white">
+              CineRent<span className="text-amber-500">LK</span>
+            </span>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden text-slate-400"
+            onClick={onClose}
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8">
+          {navItems.map((section, idx) => (
+            <div key={idx}>
+              <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                {section.category}
+              </h3>
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => window.innerWidth < 1024 && onClose()}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                        isActive
+                          ? 'bg-amber-500/10 text-amber-500 border-l-2 border-amber-500'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border-l-2 border-transparent',
+                      )
+                    }
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* User Profile Snippet */}
+        <div className="p-4 border-t border-white/5">
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white">
+              JD
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-white truncate">
+                Janaka D.
+              </p>
+              <p className="text-xs text-slate-500 truncate">Manager</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
+  )
+}
+
+```
+```components/StatCard.tsx
+import React from 'react'
+import { Card, CardContent } from './ui/Card'
+import { cn } from '../lib/utils'
+import { BoxIcon } from 'lucide-react'
+interface StatCardProps {
+  title: string
+  value: string
+  trend?: string
+  trendUp?: boolean
+  icon: BoxIcon
+  description?: string
+}
+export function StatCard({
+  title,
+  value,
+  trend,
+  trendUp,
+  icon: Icon,
+  description,
+}: StatCardProps) {
+  return (
+    <Card className="border-white/5 bg-[#111827] hover:bg-[#161e2e] transition-colors">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm font-medium text-slate-400">{title}</p>
+          <div className="p-2 rounded-lg bg-slate-800/50 text-amber-500">
+            <Icon className="w-5 h-5" />
+          </div>
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-2xl font-bold text-white">{value}</h3>
+          {trend && (
+            <div className="flex items-center gap-2 text-xs">
+              <span
+                className={cn(
+                  'font-medium px-1.5 py-0.5 rounded',
+                  trendUp
+                    ? 'text-emerald-400 bg-emerald-400/10'
+                    : 'text-red-400 bg-red-400/10',
+                )}
+              >
+                {trend}
+              </span>
+              <span className="text-slate-500">
+                {description || 'vs last month'}
+              </span>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+```
+```components/ui/Badge.tsx
+import React from 'react'
+import { cn } from '../../lib/utils'
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?:
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'success'
+    | 'warning'
+    | 'info'
+}
+function Badge({ className, variant = 'default', ...props }: BadgeProps) {
+  return (
+    <div
+      className={cn(
+        'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+        {
+          'border-transparent bg-slate-800 text-slate-50 hover:bg-slate-800/80':
+            variant === 'default',
+          'border-transparent bg-slate-700 text-slate-50 hover:bg-slate-700/80':
+            variant === 'secondary',
+          'border-transparent bg-red-900/50 text-red-200 hover:bg-red-900/60':
+            variant === 'destructive',
+          'text-slate-50': variant === 'outline',
+          'border-transparent bg-emerald-900/40 text-emerald-400 border-emerald-800/50':
+            variant === 'success',
+          'border-transparent bg-amber-900/40 text-amber-400 border-amber-800/50':
+            variant === 'warning',
+          'border-transparent bg-sky-900/40 text-sky-400 border-sky-800/50':
+            variant === 'info',
+        },
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+export { Badge }
+
+```
+```components/ui/Button.tsx
+import React, { forwardRef } from 'react'
+import { Slot } from '@radix-ui/react-slot'
+import { cn } from '../../lib/utils'
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean
+  variant?:
+    | 'default'
+    | 'destructive'
+    | 'outline'
+    | 'secondary'
+    | 'ghost'
+    | 'link'
+    | 'amber'
+  size?: 'default' | 'sm' | 'lg' | 'icon'
+}
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      variant = 'default',
+      size = 'default',
+      asChild = false,
+      ...props
+    },
+    ref,
+  ) => {
+    const Comp = asChild ? Slot : 'button'
+    return (
+      <Comp
+        className={cn(
+          'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+          {
+            'bg-slate-800 text-slate-50 hover:bg-slate-800/90':
+              variant === 'default',
+            'bg-red-900 text-red-50 hover:bg-red-900/90':
+              variant === 'destructive',
+            'border border-slate-700 bg-transparent hover:bg-slate-800 text-slate-200':
+              variant === 'outline',
+            'bg-slate-700 text-slate-50 hover:bg-slate-700/80':
+              variant === 'secondary',
+            'hover:bg-slate-800 hover:text-slate-50': variant === 'ghost',
+            'text-slate-50 underline-offset-4 hover:underline':
+              variant === 'link',
+            'bg-amber-500 text-black hover:bg-amber-400 font-semibold':
+              variant === 'amber',
+            'h-10 px-4 py-2': size === 'default',
+            'h-9 rounded-md px-3': size === 'sm',
+            'h-11 rounded-md px-8': size === 'lg',
+            'h-10 w-10': size === 'icon',
+          },
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  },
+)
+Button.displayName = 'Button'
+export { Button }
+
+```
+```components/ui/Card.tsx
+import React, { forwardRef } from 'react'
+import { cn } from '../../lib/utils'
+const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'rounded-xl border border-white/5 bg-[#111827] text-slate-200 shadow-sm',
+        className,
+      )}
+      {...props}
+    />
+  ),
+)
+Card.displayName = 'Card'
+const CardHeader = forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex flex-col space-y-1.5 p-6', className)}
+    {...props}
+  />
+))
+CardHeader.displayName = 'CardHeader'
+const CardTitle = forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h3
+    ref={ref}
+    className={cn(
+      'text-2xl font-semibold leading-none tracking-tight text-white',
+      className,
+    )}
+    {...props}
+  />
+))
+CardTitle.displayName = 'CardTitle'
+const CardDescription = forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p ref={ref} className={cn('text-sm text-slate-400', className)} {...props} />
+))
+CardDescription.displayName = 'CardDescription'
+const CardContent = forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
+))
+CardContent.displayName = 'CardContent'
+const CardFooter = forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex items-center p-6 pt-0', className)}
+    {...props}
+  />
+))
+CardFooter.displayName = 'CardFooter'
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+
+```
+```components/ui/Input.tsx
+import React, { forwardRef } from 'react'
+import { cn } from '../../lib/utils'
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {}
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          'flex h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  },
+)
+Input.displayName = 'Input'
+export { Input }
+
+```
+```index.css
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+* {
+  font-family: 'Inter', sans-serif;
+}
+body {
+  background-color: #0a0f1a;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+}
+
+```
+```index.tsx
+import "./index.css";
+import React from "react";
+import { render } from "react-dom";
+import { App } from "./App";
+
+render(<App />, document.getElementById("root"));
+
+```
+```lib/utils.ts
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+export function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-LK', {
+    style: 'currency',
+    currency: 'LKR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
+
+```
+```pages/Calendar.tsx
+import React from 'react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+} from 'lucide-react'
+import { Layout } from '../components/Layout'
+import { Card, CardContent, CardHeader } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+// Mock Calendar Data - June 2025
+const days = Array.from(
+  {
+    length: 30,
+  },
+  (_, i) => i + 1,
+)
+const rentals = [
+  {
+    id: 1,
+    name: 'Kasun - RED Kit',
+    start: 15,
+    end: 20,
+    color: 'bg-amber-500',
+    status: 'Active',
+  },
+  {
+    id: 2,
+    name: 'Sunset Media - Lights',
+    start: 18,
+    end: 25,
+    color: 'bg-yellow-500',
+    status: 'Reserved',
+  },
+  {
+    id: 3,
+    name: 'Nimali - Sony A7S',
+    start: 12,
+    end: 14,
+    color: 'bg-emerald-500',
+    status: 'Returned',
+  },
+  {
+    id: 4,
+    name: 'CineArt - Full Grip',
+    start: 20,
+    end: 30,
+    color: 'bg-blue-500',
+    status: 'Reserved',
+  },
+  {
+    id: 5,
+    name: 'Roshan - Drone',
+    start: 8,
+    end: 12,
+    color: 'bg-red-500',
+    status: 'Returned',
+  },
+  {
+    id: 6,
+    name: 'Tharaka - Audio',
+    start: 5,
+    end: 7,
+    color: 'bg-purple-500',
+    status: 'Returned',
+  },
+]
+export function Calendar() {
+  return (
+    <Layout>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">
+              Availability Calendar
+            </h1>
+            <p className="text-slate-400">
+              View equipment bookings and schedule maintenance.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon">
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-lg font-semibold text-white px-4 min-w-[140px] text-center">
+              June 2025
+            </span>
+            <Button variant="outline" size="icon">
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+            <Button variant="amber" className="ml-2">
+              <CalendarIcon className="w-4 h-4 mr-2" />
+              Today
+            </Button>
+          </div>
+        </div>
+
+        <Card className="overflow-hidden border-white/5 bg-[#111827]">
+          <CardHeader className="border-b border-white/5 pb-4">
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-amber-500" />
+                <span className="text-slate-400">Camera</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-emerald-500" />
+                <span className="text-slate-400">Lens</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-yellow-500" />
+                <span className="text-slate-400">Lighting</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-blue-500" />
+                <span className="text-slate-400">Grip</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-red-500" />
+                <span className="text-slate-400">Drone</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-purple-500" />
+                <span className="text-slate-400">Audio</span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-7 border-b border-white/5">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div
+                  key={day}
+                  className="p-4 text-center text-sm font-medium text-slate-500 border-r border-white/5 last:border-r-0"
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 auto-rows-[140px]">
+              {days.map((day) => {
+                const dayRentals = rentals.filter(
+                  (r) => day >= r.start && day <= r.end,
+                )
+                return (
+                  <div
+                    key={day}
+                    className="p-2 border-r border-b border-white/5 last:border-r-0 relative group hover:bg-white/5 transition-colors"
+                  >
+                    <span className="text-sm text-slate-400 font-medium block mb-2">
+                      {day}
+                    </span>
+                    <div className="space-y-1.5 overflow-y-auto max-h-[100px] custom-scrollbar">
+                      {dayRentals.map((rental) => (
+                        <div
+                          key={rental.id}
+                          className={`text-[10px] px-2 py-1 rounded truncate text-white font-medium ${rental.color}/20 border ${rental.color}/50 shadow-sm`}
+                          title={rental.name}
+                        >
+                          {rental.name}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </Layout>
+  )
+}
+
+```
+```pages/Customers.tsx
+import React, { useState } from 'react'
+import {
+  Search,
+  User,
+  Building2,
+  Briefcase,
+  Phone,
+  MessageCircle,
+  MoreHorizontal,
+  Plus,
+  FileText,
+} from 'lucide-react'
+import { Layout } from '../components/Layout'
+import { Card, CardContent } from '../components/ui/Card'
+import { Input } from '../components/ui/Input'
+import { Button } from '../components/ui/Button'
+import { Badge } from '../components/ui/Badge'
+import { formatCurrency, cn } from '../lib/utils'
+const customers = [
+  {
+    id: 'CUST-001',
+    name: 'Kasun Perera',
+    company: 'Perera Films',
+    nic: '901234567V',
+    phone: '077 123 4567',
+    whatsapp: '077 123 4567',
+    type: 'Production House',
+    creditLimit: 500000,
+    outstanding: 45000,
+    email: 'kasun@pererafilms.lk',
+    lastTransaction: '2025-06-15',
+  },
+  {
+    id: 'CUST-002',
+    name: 'Nimali Fernando',
+    company: '-',
+    nic: '885432109V',
+    phone: '071 987 6543',
+    whatsapp: '071 987 6543',
+    type: 'Individual',
+    creditLimit: 50000,
+    outstanding: 0,
+    email: 'nimali.f@gmail.com',
+    lastTransaction: '2025-06-10',
+  },
+  {
+    id: 'CUST-003',
+    name: 'Sunset Media (Pvt) Ltd',
+    company: 'Sunset Media',
+    nic: 'PV00123456',
+    phone: '011 234 5678',
+    whatsapp: '077 234 5678',
+    type: 'Agency',
+    creditLimit: 1000000,
+    outstanding: 189000,
+    email: 'accounts@sunsetmedia.lk',
+    lastTransaction: '2025-06-14',
+  },
+  {
+    id: 'CUST-004',
+    name: 'Roshan Silva',
+    company: 'RS Productions',
+    nic: '923456789V',
+    phone: '076 345 6789',
+    whatsapp: '076 345 6789',
+    type: 'Production House',
+    creditLimit: 300000,
+    outstanding: 0,
+    email: 'roshan@rsprod.com',
+    lastTransaction: '2025-05-28',
+  },
+  {
+    id: 'CUST-005',
+    name: 'Dilani Jayawardena',
+    company: '-',
+    nic: '956789012V',
+    phone: '070 456 7890',
+    whatsapp: '070 456 7890',
+    type: 'Individual',
+    creditLimit: 25000,
+    outstanding: 12500,
+    email: 'dilani.j@yahoo.com',
+    lastTransaction: '2025-06-01',
+  },
+  {
+    id: 'CUST-006',
+    name: 'CineArt Studios',
+    company: 'CineArt',
+    nic: 'PV00987654',
+    phone: '011 345 6789',
+    whatsapp: '077 345 6789',
+    type: 'Agency',
+    creditLimit: 750000,
+    outstanding: 67000,
+    email: 'info@cineart.lk',
+    lastTransaction: '2025-06-12',
+  },
+  {
+    id: 'CUST-007',
+    name: 'Tharaka Bandara',
+    company: 'TB Films',
+    nic: '878901234V',
+    phone: '072 567 8901',
+    whatsapp: '072 567 8901',
+    type: 'Production House',
+    creditLimit: 200000,
+    outstanding: 0,
+    email: 'tharaka@tbfilms.lk',
+    lastTransaction: '2025-05-20',
+  },
+  {
+    id: 'CUST-008',
+    name: 'Priya Wickramasinghe',
+    company: '-',
+    nic: '934567890V',
+    phone: '075 678 9012',
+    whatsapp: '075 678 9012',
+    type: 'Individual',
+    creditLimit: 30000,
+    outstanding: 8500,
+    email: 'priya.w@gmail.com',
+    lastTransaction: '2025-06-05',
+  },
+]
+export function Customers() {
+  const [filter, setFilter] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
+  const filteredCustomers = customers.filter((customer) => {
+    const matchesFilter = filter === 'All' || customer.type === filter
+    const matchesSearch =
+      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.phone.includes(searchQuery) ||
+      customer.nic.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesFilter && matchesSearch
+  })
+  return (
+    <Layout>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Customers</h1>
+            <p className="text-slate-400">
+              Manage client profiles, credit limits, and history.
+            </p>
+          </div>
+          <Button variant="amber">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Customer
+          </Button>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Input
+              placeholder="Search by name, phone, or NIC/BR..."
+              className="pl-10 bg-[#111827] border-slate-800 focus:border-amber-500/50"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+            {['All', 'Individual', 'Production House', 'Agency'].map((tab) => (
+              <Button
+                key={tab}
+                variant={filter === tab ? 'secondary' : 'ghost'}
+                onClick={() => setFilter(tab)}
+                className={cn(
+                  'whitespace-nowrap',
+                  filter === tab
+                    ? 'bg-slate-800 text-white'
+                    : 'text-slate-400 hover:text-white',
+                )}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Customer Table */}
+        <Card className="border-white/5 bg-[#111827]">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-500 uppercase bg-slate-900/50 border-b border-white/5">
+                  <tr>
+                    <th className="px-6 py-4">Customer</th>
+                    <th className="px-6 py-4">Contact Info</th>
+                    <th className="px-6 py-4">Type</th>
+                    <th className="px-6 py-4">Credit Limit</th>
+                    <th className="px-6 py-4">Outstanding</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filteredCustomers.map((customer) => (
+                    <tr
+                      key={customer.id}
+                      className="hover:bg-white/5 transition-colors group"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-amber-500 shrink-0 border border-white/5">
+                            {customer.type === 'Individual' ? (
+                              <User className="w-5 h-5" />
+                            ) : customer.type === 'Agency' ? (
+                              <Building2 className="w-5 h-5" />
+                            ) : (
+                              <Briefcase className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium text-white group-hover:text-amber-500 transition-colors">
+                              {customer.name}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {customer.company !== '-'
+                                ? customer.company
+                                : 'Personal'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 text-slate-300">
+                            <Phone className="w-3 h-3 text-slate-500" />
+                            <span>{customer.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-400 text-xs">
+                            <span className="uppercase tracking-wider">
+                              {customer.nic.startsWith('PV') ? 'BR' : 'NIC'}
+                            </span>
+                            <span>{customer.nic}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge
+                          variant="secondary"
+                          className="bg-slate-800 text-slate-300 border-slate-700"
+                        >
+                          {customer.type}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-slate-300 font-mono">
+                        {formatCurrency(customer.creditLimit)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div
+                          className={cn(
+                            'font-bold font-mono',
+                            customer.outstanding > 0
+                              ? 'text-red-400'
+                              : 'text-emerald-400',
+                          )}
+                        >
+                          {formatCurrency(customer.outstanding)}
+                        </div>
+                        {customer.outstanding > 0 && (
+                          <div className="text-[10px] text-red-500/70 mt-0.5">
+                            Payment Due
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-emerald-400"
+                            title="WhatsApp"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-amber-400"
+                            title="Create Invoice"
+                          >
+                            <FileText className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-white"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </Layout>
+  )
+}
+
+```
+```pages/Dashboard.tsx
+import React from 'react'
+import {
+  DollarSign,
+  Camera,
+  AlertCircle,
+  Activity,
+  Plus,
+  FileText,
+  Users,
+  ArrowUpRight,
+} from 'lucide-react'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts'
+import { Layout } from '../components/Layout'
+import { StatCard } from '../components/StatCard'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+import { Badge } from '../components/ui/Badge'
+import { formatCurrency } from '../lib/utils'
+// Mock Data
+const revenueData = [
+  {
+    month: 'Jan',
+    revenue: 320000,
+  },
+  {
+    month: 'Feb',
+    revenue: 410000,
+  },
+  {
+    month: 'Mar',
+    revenue: 380000,
+  },
+  {
+    month: 'Apr',
+    revenue: 520000,
+  },
+  {
+    month: 'May',
+    revenue: 610000,
+  },
+  {
+    month: 'Jun',
+    revenue: 847500,
+  },
+]
+const utilizationData = [
+  {
+    name: 'Camera',
+    value: 85,
+  },
+  {
+    name: 'Lens',
+    value: 72,
+  },
+  {
+    name: 'Lighting',
+    value: 68,
+  },
+  {
+    name: 'Audio',
+    value: 45,
+  },
+  {
+    name: 'Grip',
+    value: 55,
+  },
+  {
+    name: 'Drone',
+    value: 90,
+  },
+]
+const customerTypeData = [
+  {
+    name: 'Production House',
+    value: 52,
+  },
+  {
+    name: 'Individual',
+    value: 28,
+  },
+  {
+    name: 'Agency',
+    value: 20,
+  },
+]
+const recentActivity = [
+  {
+    id: 'INV-2025-001',
+    customer: 'Studio 44',
+    equipment: 'RED Komodo Kit',
+    amount: 45000,
+    status: 'PAID',
+    date: 'Today, 10:30 AM',
+  },
+  {
+    id: 'INV-2025-002',
+    customer: 'Kasun Perera',
+    equipment: 'Sony A7S III',
+    amount: 12500,
+    status: 'PENDING',
+    date: 'Today, 09:15 AM',
+  },
+  {
+    id: 'INV-2025-003',
+    customer: 'Leo Burnett',
+    equipment: 'Aputure Light Storm',
+    amount: 85000,
+    status: 'OVERDUE',
+    date: 'Yesterday',
+  },
+  {
+    id: 'INV-2025-004',
+    customer: 'Dream Frames',
+    equipment: 'DJI Mavic 3',
+    amount: 25000,
+    status: 'PAID',
+    date: 'Yesterday',
+  },
+  {
+    id: 'INV-2025-005',
+    customer: 'Amal Silva',
+    equipment: 'Lens Kit',
+    amount: 8000,
+    status: 'PENDING',
+    date: '2 days ago',
+  },
+]
+const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444']
+export function Dashboard() {
+  return (
+    <Layout>
+      <div className="flex flex-col gap-8">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">
+              Dashboard
+            </h1>
+            <p className="text-slate-400 mt-1">
+              Overview of your rental operations and financial health.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-500 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+              Last updated: Just now
+            </span>
+          </div>
+        </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Revenue (Jun)"
+            value={formatCurrency(847500)}
+            trend="+12%"
+            trendUp={true}
+            icon={DollarSign}
+          />
+          <StatCard
+            title="Active Rentals"
+            value="23"
+            trend="+3"
+            trendUp={true}
+            icon={Camera}
+            description="new today"
+          />
+          <StatCard
+            title="Outstanding"
+            value={formatCurrency(234000)}
+            trend="8 invoices"
+            trendUp={false}
+            icon={AlertCircle}
+            description="pending payment"
+          />
+          <StatCard
+            title="Utilization"
+            value="74%"
+            trend="+5%"
+            trendUp={true}
+            icon={Activity}
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Button
+            variant="outline"
+            className="h-auto py-4 flex flex-col gap-2 hover:border-amber-500/50 hover:bg-amber-500/5"
+          >
+            <FileText className="w-6 h-6 text-amber-500" />
+            <span>New Quotation</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-auto py-4 flex flex-col gap-2 hover:border-emerald-500/50 hover:bg-emerald-500/5"
+          >
+            <Plus className="w-6 h-6 text-emerald-500" />
+            <span>New Invoice</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-auto py-4 flex flex-col gap-2 hover:border-blue-500/50 hover:bg-blue-500/5"
+          >
+            <Camera className="w-6 h-6 text-blue-500" />
+            <span>Add Equipment</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-auto py-4 flex flex-col gap-2 hover:border-purple-500/50 hover:bg-purple-500/5"
+          >
+            <Users className="w-6 h-6 text-purple-500" />
+            <span>Add Customer</span>
+          </Button>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Revenue Trend */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Revenue Trend</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#374151"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="month"
+                    stroke="#9ca3af"
+                    tick={{
+                      fill: '#9ca3af',
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    stroke="#9ca3af"
+                    tick={{
+                      fill: '#9ca3af',
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(value) => `LKR ${value / 1000}k`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1f2937',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#fff',
+                    }}
+                    formatter={(value: number) => [
+                      formatCurrency(value),
+                      'Revenue',
+                    ]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#f59e0b"
+                    strokeWidth={3}
+                    dot={{
+                      fill: '#f59e0b',
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{
+                      r: 8,
+                    }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Customer Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer Types</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={customerTypeData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {customerTypeData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1f2937',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#fff',
+                    }}
+                  />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Equipment Utilization & Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Utilization Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Equipment Utilization</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={utilizationData} layout="vertical">
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#374151"
+                    horizontal={false}
+                  />
+                  <XAxis type="number" hide />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    width={80}
+                    tick={{
+                      fill: '#9ca3af',
+                      fontSize: 12,
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{
+                      fill: '#374151',
+                      opacity: 0.2,
+                    }}
+                    contentStyle={{
+                      backgroundColor: '#1f2937',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#fff',
+                    }}
+                  />
+                  <Bar
+                    dataKey="value"
+                    fill="#f59e0b"
+                    radius={[0, 4, 4, 0]}
+                    barSize={20}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity Table */}
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Recent Activity</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-amber-500 hover:text-amber-400"
+              >
+                View All <ArrowUpRight className="w-4 h-4 ml-1" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs text-slate-500 uppercase bg-slate-900/50">
+                    <tr>
+                      <th className="px-4 py-3 rounded-l-lg">Invoice</th>
+                      <th className="px-4 py-3">Customer</th>
+                      <th className="px-4 py-3">Equipment</th>
+                      <th className="px-4 py-3">Amount</th>
+                      <th className="px-4 py-3 rounded-r-lg">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {recentActivity.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="hover:bg-slate-800/30 transition-colors"
+                      >
+                        <td className="px-4 py-3 font-medium text-slate-300">
+                          {item.id}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-white">
+                            {item.customer}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            {item.date}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-slate-400">
+                          {item.equipment}
+                        </td>
+                        <td className="px-4 py-3 font-medium text-white">
+                          {formatCurrency(item.amount)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge
+                            variant={
+                              item.status === 'PAID'
+                                ? 'success'
+                                : item.status === 'PENDING'
+                                  ? 'warning'
+                                  : 'destructive'
+                            }
+                          >
+                            {item.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </Layout>
+  )
+}
+
+```
+```pages/Equipment.tsx
+import React, { useState } from 'react'
+import {
+  Search,
+  Plus,
+  Battery,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  MoreHorizontal,
+  Wrench,
+  History,
+  X,
+  TrendingUp,
+  MapPin,
+  Hash,
+} from 'lucide-react'
+import { Layout } from '../components/Layout'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { Input } from '../components/ui/Input'
+import { Button } from '../components/ui/Button'
+import { Badge } from '../components/ui/Badge'
+import { formatCurrency, cn } from '../lib/utils'
+interface EquipmentItem {
+  id: string
+  name: string
+  category: string
+  serial: string
+  dailyRate: number
+  status: 'Available' | 'Rented' | 'Reserved' | 'Maintenance'
+  utilization: number
+  location: string
+  purchaseCost: number
+  replacementValue: number
+  totalRevenue: number
+  totalRentals: number
+  maintenanceCost: number
+}
+const equipment: EquipmentItem[] = [
+  {
+    id: 'CAM-001',
+    name: 'Sony FX6 Cinema Camera',
+    category: 'Camera',
+    serial: 'SX123456',
+    dailyRate: 15000,
+    status: 'Rented',
+    utilization: 85,
+    location: 'Out',
+    purchaseCost: 850000,
+    replacementValue: 950000,
+    totalRevenue: 1275000,
+    totalRentals: 85,
+    maintenanceCost: 12000,
+  },
+  {
+    id: 'LNS-001',
+    name: 'Canon EF 24-70mm f/2.8L II',
+    category: 'Lens',
+    serial: 'CL789012',
+    dailyRate: 3500,
+    status: 'Available',
+    utilization: 72,
+    location: 'Warehouse A',
+    purchaseCost: 180000,
+    replacementValue: 210000,
+    totalRevenue: 378000,
+    totalRentals: 108,
+    maintenanceCost: 3500,
+  },
+  {
+    id: 'LGT-001',
+    name: 'ARRI SkyPanel S60-C LED',
+    category: 'Lighting',
+    serial: 'AS345678',
+    dailyRate: 8000,
+    status: 'Available',
+    utilization: 68,
+    location: 'Warehouse B',
+    purchaseCost: 650000,
+    replacementValue: 720000,
+    totalRevenue: 816000,
+    totalRentals: 102,
+    maintenanceCost: 8000,
+  },
+  {
+    id: 'CAM-002',
+    name: 'DJI Ronin 4D',
+    category: 'Camera',
+    serial: 'DJ901234',
+    dailyRate: 18000,
+    status: 'Reserved',
+    utilization: 90,
+    location: 'Warehouse A',
+    purchaseCost: 1200000,
+    replacementValue: 1350000,
+    totalRevenue: 2430000,
+    totalRentals: 135,
+    maintenanceCost: 15000,
+  },
+  {
+    id: 'AUD-001',
+    name: 'Rode NTG5 Shotgun Mic',
+    category: 'Audio',
+    serial: 'RD567890',
+    dailyRate: 2500,
+    status: 'Available',
+    utilization: 45,
+    location: 'Warehouse A',
+    purchaseCost: 65000,
+    replacementValue: 75000,
+    totalRevenue: 168750,
+    totalRentals: 67,
+    maintenanceCost: 1500,
+  },
+  {
+    id: 'LNS-002',
+    name: 'Sony FE 85mm f/1.4 GM',
+    category: 'Lens',
+    serial: 'SL123456',
+    dailyRate: 4000,
+    status: 'Available',
+    utilization: 65,
+    location: 'Warehouse B',
+    purchaseCost: 220000,
+    replacementValue: 250000,
+    totalRevenue: 390000,
+    totalRentals: 97,
+    maintenanceCost: 2000,
+  },
+  {
+    id: 'LGT-002',
+    name: 'Aputure 600D Pro',
+    category: 'Lighting',
+    serial: 'AP789012',
+    dailyRate: 6500,
+    status: 'Rented',
+    utilization: 78,
+    location: 'Out',
+    purchaseCost: 320000,
+    replacementValue: 360000,
+    totalRevenue: 741000,
+    totalRentals: 114,
+    maintenanceCost: 9500,
+  },
+  {
+    id: 'DRN-001',
+    name: 'DJI Mavic 3 Pro Cine',
+    category: 'Drone',
+    serial: 'DM345678',
+    dailyRate: 12000,
+    status: 'Available',
+    utilization: 88,
+    location: 'Warehouse A',
+    purchaseCost: 480000,
+    replacementValue: 550000,
+    totalRevenue: 1584000,
+    totalRentals: 132,
+    maintenanceCost: 18000,
+  },
+  {
+    id: 'AUD-002',
+    name: 'Sennheiser EW 100 G4',
+    category: 'Audio',
+    serial: 'SE901234',
+    dailyRate: 3000,
+    status: 'Maintenance',
+    utilization: 30,
+    location: 'Service Center',
+    purchaseCost: 95000,
+    replacementValue: 110000,
+    totalRevenue: 135000,
+    totalRentals: 45,
+    maintenanceCost: 14000,
+  },
+  {
+    id: 'GRP-001',
+    name: 'Dana Dolly Kit',
+    category: 'Grip',
+    serial: 'DD567890',
+    dailyRate: 5000,
+    status: 'Available',
+    utilization: 55,
+    location: 'Warehouse B',
+    purchaseCost: 280000,
+    replacementValue: 320000,
+    totalRevenue: 412500,
+    totalRentals: 82,
+    maintenanceCost: 5000,
+  },
+  {
+    id: 'CAM-003',
+    name: 'Sony FX3',
+    category: 'Camera',
+    serial: 'SX789012',
+    dailyRate: 10000,
+    status: 'Available',
+    utilization: 70,
+    location: 'Warehouse A',
+    purchaseCost: 580000,
+    replacementValue: 650000,
+    totalRevenue: 1050000,
+    totalRentals: 105,
+    maintenanceCost: 7500,
+  },
+  {
+    id: 'GRP-002',
+    name: 'Tilta Nucleus-M Follow Focus',
+    category: 'Grip',
+    serial: 'TN345678',
+    dailyRate: 2000,
+    status: 'Reserved',
+    utilization: 60,
+    location: 'Warehouse A',
+    purchaseCost: 75000,
+    replacementValue: 90000,
+    totalRevenue: 180000,
+    totalRentals: 90,
+    maintenanceCost: 2500,
+  },
+]
+const maintenanceLogs = [
+  {
+    date: '2025-05-20',
+    description: 'Firmware update & sensor clean',
+    cost: 4500,
+    downtime: '1 day',
+  },
+  {
+    date: '2025-03-10',
+    description: 'Lens mount repair',
+    cost: 8500,
+    downtime: '3 days',
+  },
+  {
+    date: '2025-01-05',
+    description: 'Annual service & calibration',
+    cost: 12000,
+    downtime: '2 days',
+  },
+]
+const categoryColor: Record<string, string> = {
+  Camera: 'bg-amber-500',
+  Lens: 'bg-sky-400',
+  Lighting: 'bg-yellow-400',
+  Audio: 'bg-purple-400',
+  Grip: 'bg-emerald-400',
+  Drone: 'bg-red-400',
+}
+const statusVariant = (status: string) => {
+  if (status === 'Available') return 'success'
+  if (status === 'Rented') return 'destructive'
+  if (status === 'Reserved') return 'warning'
+  return 'secondary'
+}
+const tabs = ['All', 'Camera', 'Lens', 'Lighting', 'Audio', 'Grip', 'Drone']
+export function Equipment() {
+  const [filter, setFilter] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedItem, setSelectedItem] = useState<EquipmentItem | null>(null)
+  const [detailTab, setDetailTab] = useState('Details')
+  const filtered = equipment.filter((item) => {
+    const matchesFilter = filter === 'All' || item.category === filter
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.serial.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.id.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesFilter && matchesSearch
+  })
+  const counts = {
+    Available: equipment.filter((e) => e.status === 'Available').length,
+    RentedReserved: equipment.filter(
+      (e) => e.status === 'Rented' || e.status === 'Reserved',
+    ).length,
+    Maintenance: equipment.filter((e) => e.status === 'Maintenance').length,
+  }
+  return (
+    <Layout>
+      <div className="flex flex-col gap-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">
+              Equipment Inventory
+            </h1>
+            <p className="text-slate-400">
+              Track assets, availability, and maintenance status.
+            </p>
+          </div>
+          <Button variant="amber">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Equipment
+          </Button>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="bg-emerald-900/10 border-emerald-900/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-emerald-900/30 text-emerald-400">
+                <CheckCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Available</p>
+                <p className="text-xl font-bold text-white">
+                  {counts.Available}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-amber-900/10 border-amber-900/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-amber-900/30 text-amber-400">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Rented / Reserved</p>
+                <p className="text-xl font-bold text-white">
+                  {counts.RentedReserved}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-red-900/10 border-red-900/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-red-900/30 text-red-400">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Maintenance</p>
+                <p className="text-xl font-bold text-white">
+                  {counts.Maintenance}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-blue-900/10 border-blue-900/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-blue-900/30 text-blue-400">
+                <Battery className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Fleet Value</p>
+                <p className="text-xl font-bold text-white">LKR 18.5M</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Search & Filter */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Input
+              placeholder="Search by name, serial, or ID..."
+              className="pl-10 bg-[#111827] border-slate-800 focus:border-amber-500/50"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+            {tabs.map((tab) => (
+              <Button
+                key={tab}
+                variant="ghost"
+                onClick={() => setFilter(tab)}
+                className={cn(
+                  'whitespace-nowrap',
+                  filter === tab
+                    ? 'bg-slate-800 text-white'
+                    : 'text-slate-400 hover:text-white',
+                )}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Equipment Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map((item) => (
+            <Card
+              key={item.id}
+              onClick={() => setSelectedItem(item)}
+              className="hover:border-amber-500/30 transition-all group bg-[#111827] border-white/5 cursor-pointer"
+            >
+              <CardContent className="p-5">
+                <div className="flex justify-between items-start mb-3">
+                  <Badge variant={statusVariant(item.status) as any}>
+                    {item.status}
+                  </Badge>
+                  <span className="text-xs font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded">
+                    {item.id}
+                  </span>
+                </div>
+                <h3 className="text-base font-semibold text-white mb-1 group-hover:text-amber-500 transition-colors leading-tight">
+                  {item.name}
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-slate-400 mb-4">
+                  <span
+                    className={cn(
+                      'w-2 h-2 rounded-full shrink-0',
+                      categoryColor[item.category],
+                    )}
+                  />
+                  <span>{item.category}</span>
+                  <span className="text-slate-600">•</span>
+                  <span className="font-mono text-xs">{item.serial}</span>
+                </div>
+                {/* Utilization Bar */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <span>Utilization</span>
+                    <span className="text-slate-300">{item.utilization}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-all',
+                        item.utilization >= 80
+                          ? 'bg-amber-500'
+                          : item.utilization >= 50
+                            ? 'bg-amber-500/60'
+                            : 'bg-slate-600',
+                      )}
+                      style={{
+                        width: `${item.utilization}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                  <div>
+                    <p className="text-xs text-slate-500">Daily Rate</p>
+                    <p className="font-semibold text-white font-mono text-sm">
+                      {formatCurrency(item.dailyRate)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-slate-500">
+                    <MapPin className="w-3 h-3" />
+                    <span>{item.location}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Detail Slide-Over Panel */}
+      {selectedItem && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/60 z-40"
+            onClick={() => setSelectedItem(null)}
+          />
+          <div className="fixed right-0 top-0 h-full w-full max-w-[480px] bg-[#111827] border-l border-white/5 z-50 flex flex-col overflow-hidden">
+            {/* Panel Header */}
+            <div className="p-6 border-b border-white/5 flex items-start justify-between">
+              <div className="flex-1 pr-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span
+                    className={cn(
+                      'w-2.5 h-2.5 rounded-full',
+                      categoryColor[selectedItem.category],
+                    )}
+                  />
+                  <span className="text-xs text-slate-400 uppercase tracking-wider">
+                    {selectedItem.category}
+                  </span>
+                  <Badge
+                    variant={statusVariant(selectedItem.status) as any}
+                    className="text-xs"
+                  >
+                    {selectedItem.status}
+                  </Badge>
+                </div>
+                <h2 className="text-xl font-bold text-white">
+                  {selectedItem.name}
+                </h2>
+                <p className="text-sm text-slate-500 font-mono mt-1">
+                  {selectedItem.id} • {selectedItem.serial}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedItem(null)}
+                className="text-slate-400 hover:text-white shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Panel Tabs */}
+            <div className="flex border-b border-white/5 px-6">
+              {['Details', 'Maintenance', 'Performance'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setDetailTab(tab)}
+                  className={cn(
+                    'py-3 px-4 text-sm font-medium border-b-2 transition-colors -mb-px',
+                    detailTab === tab
+                      ? 'border-amber-500 text-amber-500'
+                      : 'border-transparent text-slate-400 hover:text-white',
+                  )}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Panel Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {detailTab === 'Details' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      {
+                        label: 'Internal Code',
+                        value: selectedItem.id,
+                      },
+                      {
+                        label: 'Serial Number',
+                        value: selectedItem.serial,
+                      },
+                      {
+                        label: 'Location',
+                        value: selectedItem.location,
+                      },
+                      {
+                        label: 'Category',
+                        value: selectedItem.category,
+                      },
+                      {
+                        label: 'Purchase Cost',
+                        value: formatCurrency(selectedItem.purchaseCost),
+                      },
+                      {
+                        label: 'Replacement Value',
+                        value: formatCurrency(selectedItem.replacementValue),
+                      },
+                      {
+                        label: 'Daily Rate',
+                        value: formatCurrency(selectedItem.dailyRate),
+                      },
+                      {
+                        label: 'Depreciation',
+                        value: 'Straight-line 20%',
+                      },
+                    ].map(({ label, value }) => (
+                      <div
+                        key={label}
+                        className="bg-slate-900/50 rounded-lg p-3"
+                      >
+                        <p className="text-xs text-slate-500 mb-1">{label}</p>
+                        <p className="text-sm font-medium text-white font-mono">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {detailTab === 'Maintenance' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-slate-400">
+                      Total Maintenance Cost
+                    </p>
+                    <p className="text-sm font-bold text-red-400">
+                      {formatCurrency(selectedItem.maintenanceCost)}
+                    </p>
+                  </div>
+                  {maintenanceLogs.map((log, i) => (
+                    <div
+                      key={i}
+                      className="bg-slate-900/50 rounded-lg p-4 border border-white/5"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <p className="text-sm font-medium text-white">
+                          {log.description}
+                        </p>
+                        <span className="text-xs text-slate-500 ml-2 shrink-0">
+                          {log.date}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-slate-400">
+                        <span>
+                          Cost:{' '}
+                          <span className="text-red-400 font-mono">
+                            {formatCurrency(log.cost)}
+                          </span>
+                        </span>
+                        <span>
+                          Downtime:{' '}
+                          <span className="text-amber-400">{log.downtime}</span>
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  <Button variant="outline" className="w-full mt-2">
+                    <Wrench className="w-4 h-4 mr-2" />
+                    Log New Maintenance
+                  </Button>
+                </div>
+              )}
+
+              {detailTab === 'Performance' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      {
+                        label: 'Total Revenue',
+                        value: formatCurrency(selectedItem.totalRevenue),
+                        color: 'text-emerald-400',
+                      },
+                      {
+                        label: 'Total Rentals',
+                        value: `${selectedItem.totalRentals} times`,
+                        color: 'text-white',
+                      },
+                      {
+                        label: 'Utilization Rate',
+                        value: `${selectedItem.utilization}%`,
+                        color: 'text-amber-400',
+                      },
+                      {
+                        label: 'Maintenance Cost',
+                        value: formatCurrency(selectedItem.maintenanceCost),
+                        color: 'text-red-400',
+                      },
+                    ].map(({ label, value, color }) => (
+                      <div
+                        key={label}
+                        className="bg-slate-900/50 rounded-lg p-4"
+                      >
+                        <p className="text-xs text-slate-500 mb-1">{label}</p>
+                        <p className={cn('text-lg font-bold font-mono', color)}>
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-slate-900/50 rounded-lg p-4">
+                    <p className="text-xs text-slate-500 mb-2">
+                      Net Profitability
+                    </p>
+                    <p className="text-2xl font-bold text-emerald-400 font-mono">
+                      {formatCurrency(
+                        selectedItem.totalRevenue -
+                          selectedItem.maintenanceCost,
+                      )}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      ROI vs Purchase:{' '}
+                      {Math.round(
+                        ((selectedItem.totalRevenue -
+                          selectedItem.maintenanceCost) /
+                          selectedItem.purchaseCost) *
+                          100,
+                      )}
+                      %
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Panel Actions */}
+            <div className="p-4 border-t border-white/5 flex gap-2">
+              <Button variant="outline" className="flex-1">
+                Edit
+              </Button>
+              <Button variant="amber" className="flex-1">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Mark Available
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+    </Layout>
+  )
+}
+
+```
+```pages/Financials.tsx
+import React, { useState } from 'react'
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  PieChart as PieIcon,
+  Download,
+  Filter,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calculator,
+  Landmark,
+} from 'lucide-react'
+import { Layout } from '../components/Layout'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { StatCard } from '../components/StatCard'
+import { Button } from '../components/ui/Button'
+import { Badge } from '../components/ui/Badge'
+import { formatCurrency, cn } from '../lib/utils'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
+const monthlyData = [
+  {
+    name: 'Jan',
+    income: 320000,
+    expense: 150000,
+  },
+  {
+    name: 'Feb',
+    income: 410000,
+    expense: 180000,
+  },
+  {
+    name: 'Mar',
+    income: 380000,
+    expense: 160000,
+  },
+  {
+    name: 'Apr',
+    income: 520000,
+    expense: 200000,
+  },
+  {
+    name: 'May',
+    income: 610000,
+    expense: 250000,
+  },
+  {
+    name: 'Jun',
+    income: 847500,
+    expense: 300000,
+  },
+]
+const assetData = [
+  {
+    name: 'Sony FX6',
+    cost: 850000,
+    date: 'Jan 2024',
+    method: 'Straight-line',
+    rate: '20%',
+    monthly: 14167,
+    acc: 212500,
+    net: 637500,
+  },
+  {
+    name: 'DJI Ronin 4D',
+    cost: 1200000,
+    date: 'Mar 2024',
+    method: 'Straight-line',
+    rate: '20%',
+    monthly: 20000,
+    acc: 240000,
+    net: 960000,
+  },
+  {
+    name: 'ARRI SkyPanel',
+    cost: 650000,
+    date: 'Jun 2023',
+    method: 'Reducing',
+    rate: '25%',
+    monthly: 8138,
+    acc: 243750,
+    net: 406250,
+  },
+  {
+    name: 'DJI Mavic 3',
+    cost: 480000,
+    date: 'Aug 2024',
+    method: 'Straight-line',
+    rate: '33%',
+    monthly: 13200,
+    acc: 118800,
+    net: 361200,
+  },
+  {
+    name: 'Aputure 600D',
+    cost: 320000,
+    date: 'Feb 2024',
+    method: 'Straight-line',
+    rate: '20%',
+    monthly: 5333,
+    acc: 74667,
+    net: 245333,
+  },
+]
+export function Financials() {
+  const [activeTab, setActiveTab] = useState('P&L')
+  return (
+    <Layout>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Financial Reports</h1>
+            <p className="text-slate-400">
+              Profit & Loss, Cash Flow, and Asset Depreciation.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
+            </Button>
+            <Button variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-white/5">
+          {['P&L', 'Balance Sheet', 'Journal Entries', 'VAT', 'Assets'].map(
+            (tab) => (
+              <Button
+                key={tab}
+                variant="ghost"
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  'whitespace-nowrap px-4 py-2 h-auto rounded-none border-b-2 transition-colors',
+                  activeTab === tab
+                    ? 'border-amber-500 text-amber-500 bg-transparent hover:bg-transparent'
+                    : 'border-transparent text-slate-400 hover:text-white hover:bg-transparent',
+                )}
+              >
+                {tab}
+              </Button>
+            ),
+          )}
+        </div>
+
+        {/* P&L Content */}
+        {activeTab === 'P&L' && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <StatCard
+                title="Net Profit (YTD)"
+                value={formatCurrency(1850000)}
+                trend="+24%"
+                trendUp={true}
+                icon={TrendingUp}
+              />
+              <StatCard
+                title="Total Expenses"
+                value={formatCurrency(1240000)}
+                trend="+8%"
+                trendUp={false}
+                icon={TrendingDown}
+              />
+              <StatCard
+                title="Profit Margin"
+                value="71.4%"
+                trend="+2%"
+                trendUp={true}
+                icon={PieIcon}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="lg:col-span-2 border-white/5 bg-[#111827]">
+                <CardHeader>
+                  <CardTitle>Income vs Expenses (Last 6 Months)</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={monthlyData}>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#374151"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="name"
+                        stroke="#9ca3af"
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        stroke="#9ca3af"
+                        axisLine={false}
+                        tickLine={false}
+                        tickFormatter={(val) => `${val / 1000}k`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1f2937',
+                          border: 'none',
+                          borderRadius: '8px',
+                          color: '#fff',
+                        }}
+                        formatter={(value: number) => formatCurrency(value)}
+                      />
+                      <Bar
+                        dataKey="income"
+                        name="Income"
+                        fill="#f59e0b"
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="expense"
+                        name="Expenses"
+                        fill="#ef4444"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="border-white/5 bg-[#111827]">
+                <CardHeader>
+                  <CardTitle>June 2025 Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h4 className="text-sm font-semibold text-emerald-400 mb-2">
+                      Income
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Rental Revenue</span>
+                        <span className="text-white">
+                          {formatCurrency(847500)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Service Revenue</span>
+                        <span className="text-white">
+                          {formatCurrency(45000)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm font-bold pt-2 border-t border-white/10">
+                        <span className="text-white">Total Income</span>
+                        <span className="text-emerald-400">
+                          {formatCurrency(892500)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-red-400 mb-2">
+                      Expenses
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Maintenance</span>
+                        <span className="text-white">
+                          {formatCurrency(28000)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Salaries</span>
+                        <span className="text-white">
+                          {formatCurrency(180000)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Depreciation</span>
+                        <span className="text-white">
+                          {formatCurrency(35000)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm font-bold pt-2 border-t border-white/10">
+                        <span className="text-white">Total Expenses</span>
+                        <span className="text-red-400">
+                          {formatCurrency(243000)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 flex justify-between items-center">
+                    <span className="text-amber-500 font-medium">
+                      Net Profit
+                    </span>
+                    <span className="text-xl font-bold text-white">
+                      {formatCurrency(649500)}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {/* Journal Entries Content */}
+        {activeTab === 'Journal Entries' && (
+          <Card className="border-white/5 bg-[#111827]">
+            <CardHeader>
+              <CardTitle>General Ledger</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs text-slate-500 uppercase bg-slate-900/50 border-b border-white/5">
+                    <tr>
+                      <th className="px-6 py-4">Date</th>
+                      <th className="px-6 py-4">Ref</th>
+                      <th className="px-6 py-4">Description</th>
+                      <th className="px-6 py-4">Account</th>
+                      <th className="px-6 py-4 text-right">Debit</th>
+                      <th className="px-6 py-4 text-right">Credit</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    <tr className="hover:bg-white/5">
+                      <td className="px-6 py-4 text-slate-400">Jun 15</td>
+                      <td className="px-6 py-4 text-amber-500 font-mono">
+                        JE-001
+                      </td>
+                      <td className="px-6 py-4 text-white">
+                        Invoice raised - Sunset Media
+                      </td>
+                      <td className="px-6 py-4 text-slate-300">
+                        <div>Accounts Receivable</div>
+                        <div className="pl-4 text-slate-500">
+                          Rental Revenue
+                        </div>
+                        <div className="pl-4 text-slate-500">VAT Payable</div>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-white">
+                        <div>{formatCurrency(284000)}</div>
+                        <div>-</div>
+                        <div>-</div>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-slate-400">
+                        <div>-</div>
+                        <div>{formatCurrency(240678)}</div>
+                        <div>{formatCurrency(43322)}</div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-white/5">
+                      <td className="px-6 py-4 text-slate-400">Jun 12</td>
+                      <td className="px-6 py-4 text-amber-500 font-mono">
+                        JE-002
+                      </td>
+                      <td className="px-6 py-4 text-white">
+                        Payment received - Sunset Media
+                      </td>
+                      <td className="px-6 py-4 text-slate-300">
+                        <div>Bank</div>
+                        <div className="pl-4 text-slate-500">
+                          Accounts Receivable
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-white">
+                        <div>{formatCurrency(150000)}</div>
+                        <div>-</div>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-slate-400">
+                        <div>-</div>
+                        <div>{formatCurrency(150000)}</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* VAT Content */}
+        {activeTab === 'VAT' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <StatCard
+                title="Output VAT (Collected)"
+                value={formatCurrency(152550)}
+                icon={ArrowUpRight}
+                trend="From Sales"
+                trendUp={true}
+              />
+              <StatCard
+                title="Input VAT (Paid)"
+                value={formatCurrency(18000)}
+                icon={ArrowDownRight}
+                trend="On Purchases"
+                trendUp={false}
+              />
+              <StatCard
+                title="Net Payable"
+                value={formatCurrency(134550)}
+                icon={Landmark}
+                trend="Due to IRD"
+                trendUp={false}
+              />
+            </div>
+            <Card className="border-white/5 bg-[#111827]">
+              <CardHeader>
+                <CardTitle>VAT Breakdown (June 2025)</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs text-slate-500 uppercase bg-slate-900/50 border-b border-white/5">
+                    <tr>
+                      <th className="px-6 py-4">Invoice #</th>
+                      <th className="px-6 py-4">Customer</th>
+                      <th className="px-6 py-4">Date</th>
+                      <th className="px-6 py-4 text-right">Taxable Amount</th>
+                      <th className="px-6 py-4 text-right">VAT (18%)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    <tr className="hover:bg-white/5">
+                      <td className="px-6 py-4 text-amber-500">
+                        INV-2025-0156
+                      </td>
+                      <td className="px-6 py-4 text-white">Sunset Media</td>
+                      <td className="px-6 py-4 text-slate-400">Jun 10</td>
+                      <td className="px-6 py-4 text-right text-white">
+                        {formatCurrency(240678)}
+                      </td>
+                      <td className="px-6 py-4 text-right text-white">
+                        {formatCurrency(43322)}
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-white/5">
+                      <td className="px-6 py-4 text-amber-500">
+                        INV-2025-0155
+                      </td>
+                      <td className="px-6 py-4 text-white">Kasun Perera</td>
+                      <td className="px-6 py-4 text-slate-400">Jun 08</td>
+                      <td className="px-6 py-4 text-right text-white">
+                        {formatCurrency(108051)}
+                      </td>
+                      <td className="px-6 py-4 text-right text-white">
+                        {formatCurrency(19449)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Assets Content */}
+        {activeTab === 'Assets' && (
+          <Card className="border-white/5 bg-[#111827]">
+            <CardHeader>
+              <CardTitle>Fixed Asset Depreciation</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs text-slate-500 uppercase bg-slate-900/50 border-b border-white/5">
+                    <tr>
+                      <th className="px-6 py-4">Asset</th>
+                      <th className="px-6 py-4">Purchase Cost</th>
+                      <th className="px-6 py-4">Date</th>
+                      <th className="px-6 py-4">Method</th>
+                      <th className="px-6 py-4">Monthly Dep.</th>
+                      <th className="px-6 py-4">Accumulated</th>
+                      <th className="px-6 py-4 text-right">Net Book Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {assetData.map((asset, idx) => (
+                      <tr key={idx} className="hover:bg-white/5">
+                        <td className="px-6 py-4 font-medium text-white">
+                          {asset.name}
+                        </td>
+                        <td className="px-6 py-4 text-slate-300">
+                          {formatCurrency(asset.cost)}
+                        </td>
+                        <td className="px-6 py-4 text-slate-400">
+                          {asset.date}
+                        </td>
+                        <td className="px-6 py-4 text-slate-400">
+                          {asset.method} ({asset.rate})
+                        </td>
+                        <td className="px-6 py-4 text-slate-300">
+                          {formatCurrency(asset.monthly)}
+                        </td>
+                        <td className="px-6 py-4 text-slate-300">
+                          {formatCurrency(asset.acc)}
+                        </td>
+                        <td className="px-6 py-4 text-right font-bold text-amber-500">
+                          {formatCurrency(asset.net)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Balance Sheet Content (Simple Placeholder) */}
+        {activeTab === 'Balance Sheet' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="border-white/5 bg-[#111827]">
+              <CardHeader>
+                <CardTitle>Assets</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">
+                    Current Assets (Bank/Cash)
+                  </span>
+                  <span className="text-white">{formatCurrency(450000)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Accounts Receivable</span>
+                  <span className="text-white">{formatCurrency(282500)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">
+                    Fixed Assets (Equipment)
+                  </span>
+                  <span className="text-white">{formatCurrency(12500000)}</span>
+                </div>
+                <div className="pt-4 border-t border-white/10 flex justify-between font-bold">
+                  <span className="text-white">Total Assets</span>
+                  <span className="text-emerald-400">
+                    {formatCurrency(13232500)}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-white/5 bg-[#111827]">
+              <CardHeader>
+                <CardTitle>Liabilities & Equity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Accounts Payable</span>
+                  <span className="text-white">{formatCurrency(120000)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">VAT Payable</span>
+                  <span className="text-white">{formatCurrency(134550)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Owner's Equity</span>
+                  <span className="text-white">{formatCurrency(12977950)}</span>
+                </div>
+                <div className="pt-4 border-t border-white/10 flex justify-between font-bold">
+                  <span className="text-white">Total Liab. & Equity</span>
+                  <span className="text-emerald-400">
+                    {formatCurrency(13232500)}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </Layout>
+  )
+}
+
+```
+```pages/Invoices.tsx
+import React, { useState } from 'react'
+import {
+  Plus,
+  Download,
+  Send,
+  MoreHorizontal,
+  CreditCard,
+  Mail,
+  MessageCircle,
+  X,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  DollarSign,
+} from 'lucide-react'
+import { Layout } from '../components/Layout'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+import { Badge } from '../components/ui/Badge'
+import { Input } from '../components/ui/Input'
+import { StatCard } from '../components/StatCard'
+import { formatCurrency, cn } from '../lib/utils'
+// Mock Data
+const invoices = [
+  {
+    id: 'INV-2025-0156',
+    customer: 'Sunset Media (Pvt) Ltd',
+    date: '2025-06-10',
+    dueDate: '2025-06-25',
+    amount: 284000,
+    paid: 150000,
+    status: 'Partial',
+    items: [
+      {
+        desc: 'Sony FX6 Cinema Camera',
+        qty: 1,
+        days: 5,
+        rate: 15000,
+        total: 75000,
+      },
+      {
+        desc: 'ARRI SkyPanel S60-C',
+        qty: 2,
+        days: 5,
+        rate: 8000,
+        total: 80000,
+      },
+      {
+        desc: 'Delivery Fee',
+        qty: 1,
+        days: 1,
+        rate: 5000,
+        total: 5000,
+      },
+      {
+        desc: 'Operator Fee',
+        qty: 1,
+        days: 5,
+        rate: 5000,
+        total: 25000,
+      },
+    ],
+  },
+  {
+    id: 'INV-2025-0155',
+    customer: 'Kasun Perera',
+    date: '2025-06-08',
+    dueDate: '2025-06-23',
+    amount: 127500,
+    paid: 0,
+    status: 'Overdue',
+    items: [],
+  },
+  {
+    id: 'INV-2025-0154',
+    customer: 'CineArt Studios',
+    date: '2025-06-05',
+    dueDate: '2025-06-20',
+    amount: 67000,
+    paid: 67000,
+    status: 'Paid',
+    items: [],
+  },
+  {
+    id: 'INV-2025-0153',
+    customer: 'Nimali Fernando',
+    date: '2025-06-03',
+    dueDate: '2025-06-18',
+    amount: 37000,
+    paid: 37000,
+    status: 'Paid',
+    items: [],
+  },
+  {
+    id: 'INV-2025-0152',
+    customer: 'Roshan Silva',
+    date: '2025-05-28',
+    dueDate: '2025-06-12',
+    amount: 156000,
+    paid: 156000,
+    status: 'Paid',
+    items: [],
+  },
+  {
+    id: 'INV-2025-0151',
+    customer: 'Dilani Jayawardena',
+    date: '2025-05-25',
+    dueDate: '2025-06-09',
+    amount: 12500,
+    paid: 0,
+    status: 'Overdue',
+    items: [],
+  },
+  {
+    id: 'INV-2025-0150',
+    customer: 'Tharaka Bandara',
+    date: '2025-05-20',
+    dueDate: '2025-06-04',
+    amount: 48000,
+    paid: 48000,
+    status: 'Paid',
+    items: [],
+  },
+  {
+    id: 'INV-2025-0149',
+    customer: 'Priya Wickramasinghe',
+    date: '2025-05-15',
+    dueDate: '2025-05-30',
+    amount: 8500,
+    paid: 0,
+    status: 'Overdue',
+    items: [],
+  },
+]
+export function Invoices() {
+  const [filter, setFilter] = useState('All')
+  const [selectedInvoice, setSelectedInvoice] = useState<
+    (typeof invoices)[0] | null
+  >(null)
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false)
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
+  const filteredInvoices =
+    filter === 'All'
+      ? invoices
+      : invoices.filter((inv) => inv.status === filter)
+  return (
+    <Layout>
+      <div className="flex flex-col gap-6 relative">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Invoices</h1>
+            <p className="text-slate-400">
+              Manage billing, payments, and tax records.
+            </p>
+          </div>
+          <Button variant="amber">
+            <Plus className="w-4 h-4 mr-2" />
+            New Invoice
+          </Button>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Invoiced"
+            value={formatCurrency(740500)}
+            icon={FileText}
+            trend="This Month"
+            trendUp={true}
+          />
+          <StatCard
+            title="Collected"
+            value={formatCurrency(458000)}
+            icon={CheckCircle}
+            trend="62% Rate"
+            trendUp={true}
+          />
+          <StatCard
+            title="Outstanding"
+            value={formatCurrency(282500)}
+            icon={Clock}
+            trend="Pending"
+            trendUp={false}
+          />
+          <StatCard
+            title="Overdue"
+            value={formatCurrency(148500)}
+            icon={AlertCircle}
+            trend="Needs Action"
+            trendUp={false}
+          />
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-white/5">
+          {['All', 'Paid', 'Partial', 'Overdue', 'Draft'].map((tab) => (
+            <Button
+              key={tab}
+              variant="ghost"
+              onClick={() => setFilter(tab)}
+              className={cn(
+                'whitespace-nowrap px-4 py-2 h-auto rounded-none border-b-2 transition-colors',
+                filter === tab
+                  ? 'border-amber-500 text-amber-500 bg-transparent hover:bg-transparent'
+                  : 'border-transparent text-slate-400 hover:text-white hover:bg-transparent',
+              )}
+            >
+              {tab}
+            </Button>
+          ))}
+        </div>
+
+        <Card className="border-white/5 bg-[#111827]">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-500 uppercase bg-slate-900/50 border-b border-white/5">
+                  <tr>
+                    <th className="px-6 py-4">Invoice #</th>
+                    <th className="px-6 py-4">Customer</th>
+                    <th className="px-6 py-4">Due Date</th>
+                    <th className="px-6 py-4">Amount</th>
+                    <th className="px-6 py-4">Balance Due</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filteredInvoices.map((inv) => (
+                    <tr
+                      key={inv.id}
+                      className="hover:bg-white/5 transition-colors group cursor-pointer"
+                      onClick={() => setSelectedInvoice(inv)}
+                    >
+                      <td className="px-6 py-4 font-mono text-amber-500">
+                        {inv.id}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-white">
+                          {inv.customer}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          Issued: {inv.date}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-300">
+                        {inv.dueDate}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-white font-mono">
+                        {formatCurrency(inv.amount)}
+                      </td>
+                      <td className="px-6 py-4 font-medium font-mono">
+                        <span
+                          className={
+                            inv.amount - inv.paid > 0
+                              ? 'text-red-400'
+                              : 'text-slate-500'
+                          }
+                        >
+                          {formatCurrency(inv.amount - inv.paid)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge
+                          variant={
+                            inv.status === 'Paid'
+                              ? 'success'
+                              : inv.status === 'Partial'
+                                ? 'warning'
+                                : inv.status === 'Overdue'
+                                  ? 'destructive'
+                                  : 'secondary'
+                          }
+                        >
+                          {inv.status}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {inv.status !== 'Paid' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-slate-400 hover:text-emerald-400"
+                              title="Record Payment"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedInvoice(inv)
+                                setIsPaymentModalOpen(true)
+                              }}
+                            >
+                              <CreditCard className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-white"
+                            title="Send Email"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedInvoice(inv)
+                              setIsEmailModalOpen(true)
+                            }}
+                          >
+                            <Mail className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-white"
+                            title="Send WhatsApp"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedInvoice(inv)
+                              setIsWhatsAppModalOpen(true)
+                            }}
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-white"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Invoice Detail Slide-over */}
+        {selectedInvoice &&
+          !isEmailModalOpen &&
+          !isWhatsAppModalOpen &&
+          !isPaymentModalOpen && (
+            <>
+              <div
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+                onClick={() => setSelectedInvoice(null)}
+              />
+              <div className="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-[#111827] border-l border-white/10 shadow-2xl transform transition-transform duration-300 overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-xl font-bold text-white">
+                      Invoice Details
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSelectedInvoice(null)}
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </div>
+
+                  {/* Invoice Preview */}
+                  <div className="bg-white/5 p-6 rounded-lg space-y-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-black font-bold">
+                            CR
+                          </div>
+                          <span className="font-bold text-lg text-white">
+                            CineRent LK
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400">
+                          45 Galle Road, Colombo 03
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          VAT: 114567890-7000
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-mono font-bold text-amber-500">
+                          {selectedInvoice.id}
+                        </p>
+                        <Badge
+                          variant={
+                            selectedInvoice.status === 'Paid'
+                              ? 'success'
+                              : 'warning'
+                          }
+                        >
+                          {selectedInvoice.status}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase">
+                          Bill To
+                        </p>
+                        <p className="font-medium text-white">
+                          {selectedInvoice.customer}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-slate-500 uppercase">
+                          Due Date
+                        </p>
+                        <p className="font-medium text-white">
+                          {selectedInvoice.dueDate}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-4 border-t border-white/10">
+                      {selectedInvoice.items &&
+                      selectedInvoice.items.length > 0 ? (
+                        selectedInvoice.items.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex justify-between text-sm"
+                          >
+                            <span className="text-slate-300">{item.desc}</span>
+                            <span className="text-white font-mono">
+                              {formatCurrency(item.total)}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-slate-500 italic">
+                          No line items in mock data
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="pt-4 border-t border-white/10 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Subtotal</span>
+                        <span className="text-white">
+                          {formatCurrency(selectedInvoice.amount * 0.82)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">VAT (18%)</span>
+                        <span className="text-white">
+                          {formatCurrency(selectedInvoice.amount * 0.18)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
+                        <span className="text-white">Total</span>
+                        <span className="text-amber-500">
+                          {formatCurrency(selectedInvoice.amount)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {selectedInvoice.paid > 0 && (
+                      <div className="bg-emerald-500/10 p-3 rounded border border-emerald-500/20">
+                        <div className="flex justify-between text-sm text-emerald-400">
+                          <span>Paid to date</span>
+                          <span>{formatCurrency(selectedInvoice.paid)}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedInvoice.amount - selectedInvoice.paid > 0 && (
+                      <div className="bg-red-500/10 p-3 rounded border border-red-500/20">
+                        <div className="flex justify-between text-sm text-red-400 font-bold">
+                          <span>Balance Due</span>
+                          <span>
+                            {formatCurrency(
+                              selectedInvoice.amount - selectedInvoice.paid,
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEmailModalOpen(true)}
+                    >
+                      <Mail className="w-4 h-4 mr-2" /> Email
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsWhatsAppModalOpen(true)}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
+                    </Button>
+                    <Button
+                      className="col-span-2"
+                      variant="amber"
+                      onClick={() => setIsPaymentModalOpen(true)}
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" /> Record Payment
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+        {/* Email Modal */}
+        {isEmailModalOpen && selectedInvoice && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <Card className="w-full max-w-md bg-[#111827] border-white/10">
+              <CardHeader>
+                <CardTitle>Send Invoice via Email</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-slate-400">To</label>
+                  <Input value="accounts@sunsetmedia.lk" readOnly />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-slate-400">Subject</label>
+                  <Input
+                    value={`Invoice ${selectedInvoice.id} from CineRent LK`}
+                    readOnly
+                  />
+                </div>
+                <div className="p-3 bg-white/5 rounded text-sm text-slate-300">
+                  Dear Customer, please find attached invoice{' '}
+                  {selectedInvoice.id} for{' '}
+                  {formatCurrency(selectedInvoice.amount)}.
+                </div>
+                <div className="flex items-center gap-2 p-2 border border-white/10 rounded text-sm text-slate-400">
+                  <FileText className="w-4 h-4" /> {selectedInvoice.id}.pdf
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsEmailModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="amber"
+                    className="flex-1"
+                    onClick={() => setIsEmailModalOpen(false)}
+                  >
+                    Send Email
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* WhatsApp Modal */}
+        {isWhatsAppModalOpen && selectedInvoice && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <Card className="w-full max-w-md bg-[#111827] border-white/10">
+              <CardHeader>
+                <CardTitle>Send via WhatsApp</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-[#075e54] p-4 rounded-lg text-white text-sm relative">
+                  <p>Dear {selectedInvoice.customer},</p>
+                  <br />
+                  <p>
+                    Please find your rental invoice *{selectedInvoice.id}*
+                    attached.
+                  </p>
+                  <p>Total: *{formatCurrency(selectedInvoice.amount)}*</p>
+                  <p>Due: {selectedInvoice.dueDate}</p>
+                  <br />
+                  <p>Thank you for choosing CineRent LK.</p>
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-[#075e54] rotate-45" />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsWhatsAppModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white"
+                    onClick={() => setIsWhatsAppModalOpen(false)}
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" /> Send
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Payment Modal */}
+        {isPaymentModalOpen && selectedInvoice && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <Card className="w-full max-w-md bg-[#111827] border-white/10">
+              <CardHeader>
+                <CardTitle>Record Payment</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-slate-400">Amount (LKR)</label>
+                  <Input
+                    defaultValue={selectedInvoice.amount - selectedInvoice.paid}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-slate-400">
+                    Payment Method
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" size="sm">
+                      Cash
+                    </Button>
+                    <Button variant="amber" size="sm">
+                      Bank Transfer
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Cheque
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Online
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-slate-400">
+                    Reference / Note
+                  </label>
+                  <Input placeholder="e.g. Bank Slip #12345" />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setIsPaymentModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="amber"
+                    className="flex-1"
+                    onClick={() => setIsPaymentModalOpen(false)}
+                  >
+                    Save Payment
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </Layout>
+  )
+}
+
+```
+```pages/Quotations.tsx
+import React, { useState } from 'react'
+import {
+  Plus,
+  FileText,
+  Download,
+  Send,
+  MoreHorizontal,
+  Check,
+  X,
+  FileCheck,
+  Users,
+  DollarSign,
+  Percent,
+  Calendar,
+  Search,
+  Trash2,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react'
+import { Layout } from '../components/Layout'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+import { Badge } from '../components/ui/Badge'
+import { Input } from '../components/ui/Input'
+import { StatCard } from '../components/StatCard'
+import { formatCurrency, cn } from '../lib/utils'
+// Mock Data
+const quotations = [
+  {
+    id: 'QT-2025-0089',
+    customer: 'Kasun Perera',
+    items: 3,
+    period: 'Jun 15 - Jun 20',
+    amount: 127500,
+    status: 'Sent',
+    created: '2025-06-14',
+  },
+  {
+    id: 'QT-2025-0088',
+    customer: 'Sunset Media (Pvt) Ltd',
+    items: 5,
+    period: 'Jun 18 - Jun 25',
+    amount: 284000,
+    status: 'Accepted',
+    created: '2025-06-12',
+  },
+  {
+    id: 'QT-2025-0087',
+    customer: 'Nimali Fernando',
+    items: 2,
+    period: 'Jun 12 - Jun 14',
+    amount: 37000,
+    status: 'Converted',
+    created: '2025-06-10',
+  },
+  {
+    id: 'QT-2025-0086',
+    customer: 'CineArt Studios',
+    items: 7,
+    period: 'Jun 20 - Jun 30',
+    amount: 520000,
+    status: 'Draft',
+    created: '2025-06-15',
+  },
+  {
+    id: 'QT-2025-0085',
+    customer: 'Roshan Silva',
+    items: 4,
+    period: 'Jun 08 - Jun 12',
+    amount: 156000,
+    status: 'Converted',
+    created: '2025-06-05',
+  },
+  {
+    id: 'QT-2025-0084',
+    customer: 'Tharaka Bandara',
+    items: 2,
+    period: 'Jun 05 - Jun 07',
+    amount: 48000,
+    status: 'Rejected',
+    created: '2025-06-01',
+  },
+]
+const mockEquipment = [
+  {
+    id: 'EQ-001',
+    name: 'Sony FX6 Cinema Camera',
+    rate: 15000,
+  },
+  {
+    id: 'EQ-002',
+    name: 'Canon 24-70mm f/2.8L II',
+    rate: 3500,
+  },
+  {
+    id: 'EQ-003',
+    name: 'ARRI SkyPanel S60-C',
+    rate: 8000,
+  },
+  {
+    id: 'EQ-004',
+    name: 'DJI Ronin 4D',
+    rate: 18000,
+  },
+  {
+    id: 'EQ-005',
+    name: 'Rode NTG5 Shotgun Mic',
+    rate: 2500,
+  },
+]
+export function Quotations() {
+  const [filter, setFilter] = useState('All')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [step, setStep] = useState(1)
+  // Form State
+  const [customer, setCustomer] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [selectedItems, setSelectedItems] = useState<
+    {
+      id: string
+      name: string
+      rate: number
+      days: number
+    }[]
+  >([])
+  const [deliveryFee, setDeliveryFee] = useState(0)
+  const [discount, setDiscount] = useState(0)
+  const [vatEnabled, setVatEnabled] = useState(true)
+  const filteredQuotations =
+    filter === 'All'
+      ? quotations
+      : quotations.filter((q) => q.status === filter)
+  // Calculations
+  const subtotal = selectedItems.reduce(
+    (acc, item) => acc + item.rate * item.days,
+    0,
+  )
+  const vatAmount = vatEnabled ? (subtotal + deliveryFee - discount) * 0.18 : 0
+  const total = subtotal + deliveryFee - discount + vatAmount
+  const handleAddItem = (item: (typeof mockEquipment)[0]) => {
+    setSelectedItems([
+      ...selectedItems,
+      {
+        ...item,
+        days: 1,
+      },
+    ])
+  }
+  const handleRemoveItem = (index: number) => {
+    const newItems = [...selectedItems]
+    newItems.splice(index, 1)
+    setSelectedItems(newItems)
+  }
+  const resetForm = () => {
+    setStep(1)
+    setCustomer('')
+    setStartDate('')
+    setEndDate('')
+    setSelectedItems([])
+    setDeliveryFee(0)
+    setDiscount(0)
+    setIsModalOpen(false)
+  }
+  return (
+    <Layout>
+      <div className="flex flex-col gap-6 relative">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Quotations</h1>
+            <p className="text-slate-400">
+              Create and manage rental estimates.
+            </p>
+          </div>
+          <Button variant="amber" onClick={() => setIsModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Quotation
+          </Button>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Quotes"
+            value="6"
+            icon={FileText}
+            trend="This Month"
+            trendUp={true}
+          />
+          <StatCard
+            title="Pending Value"
+            value={formatCurrency(411500)}
+            icon={DollarSign}
+            trend="3 Quotes"
+            trendUp={true}
+          />
+          <StatCard
+            title="Converted Value"
+            value={formatCurrency(193000)}
+            icon={Check}
+            trend="Last 30 Days"
+            trendUp={true}
+          />
+          <StatCard
+            title="Acceptance Rate"
+            value="33%"
+            icon={Percent}
+            trend="+5%"
+            trendUp={true}
+          />
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-white/5">
+          {['All', 'Draft', 'Sent', 'Accepted', 'Converted', 'Rejected'].map(
+            (tab) => (
+              <Button
+                key={tab}
+                variant="ghost"
+                onClick={() => setFilter(tab)}
+                className={cn(
+                  'whitespace-nowrap px-4 py-2 h-auto rounded-none border-b-2 transition-colors',
+                  filter === tab
+                    ? 'border-amber-500 text-amber-500 bg-transparent hover:bg-transparent'
+                    : 'border-transparent text-slate-400 hover:text-white hover:bg-transparent',
+                )}
+              >
+                {tab}
+              </Button>
+            ),
+          )}
+        </div>
+
+        <Card className="border-white/5 bg-[#111827]">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-500 uppercase bg-slate-900/50 border-b border-white/5">
+                  <tr>
+                    <th className="px-6 py-4">Quotation #</th>
+                    <th className="px-6 py-4">Customer</th>
+                    <th className="px-6 py-4">Rental Period</th>
+                    <th className="px-6 py-4">Items</th>
+                    <th className="px-6 py-4">Total Amount</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filteredQuotations.map((quote) => (
+                    <tr
+                      key={quote.id}
+                      className="hover:bg-white/5 transition-colors group"
+                    >
+                      <td className="px-6 py-4 font-mono text-amber-500">
+                        {quote.id}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-white">
+                          {quote.customer}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          Created: {quote.created}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-300">
+                        {quote.period}
+                      </td>
+                      <td className="px-6 py-4 text-slate-400">
+                        {quote.items} items
+                      </td>
+                      <td className="px-6 py-4 font-bold text-white font-mono">
+                        {formatCurrency(quote.amount)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge
+                          variant={
+                            quote.status === 'Accepted' ||
+                            quote.status === 'Converted'
+                              ? 'success'
+                              : quote.status === 'Sent'
+                                ? 'info'
+                                : quote.status === 'Rejected'
+                                  ? 'destructive'
+                                  : 'secondary'
+                          }
+                        >
+                          {quote.status}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {quote.status === 'Draft' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-slate-400 hover:text-white"
+                              title="Edit"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {quote.status === 'Sent' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-slate-400 hover:text-emerald-400"
+                              title="Mark Accepted"
+                            >
+                              <Check className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {quote.status === 'Accepted' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-slate-400 hover:text-amber-400"
+                              title="Convert to Invoice"
+                            >
+                              <FileCheck className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-white"
+                            title="Download PDF"
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-white"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* New Quotation Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <Card className="w-full max-w-3xl bg-[#111827] border-white/10 shadow-2xl max-h-[90vh] flex flex-col">
+              <CardHeader className="border-b border-white/5 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle>New Quotation</CardTitle>
+                  <Button variant="ghost" size="icon" onClick={resetForm}>
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+                {/* Step Indicator */}
+                <div className="flex items-center justify-between mt-6 px-8 relative">
+                  <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-white/10 -z-10" />
+                  {[1, 2, 3, 4].map((s) => (
+                    <div
+                      key={s}
+                      className={cn(
+                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors',
+                        step >= s
+                          ? 'bg-amber-500 text-black'
+                          : 'bg-slate-800 text-slate-500',
+                      )}
+                    >
+                      {s}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between px-2 mt-2 text-xs text-slate-400">
+                  <span>Customer</span>
+                  <span>Equipment</span>
+                  <span>Fees</span>
+                  <span>Review</span>
+                </div>
+              </CardHeader>
+
+              <CardContent className="flex-1 overflow-y-auto p-6">
+                {step === 1 && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-300">
+                        Customer
+                      </label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <Input
+                          placeholder="Search customer..."
+                          className="pl-10"
+                          value={customer}
+                          onChange={(e) => setCustomer(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-300">
+                          Start Date
+                        </label>
+                        <Input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-300">
+                          End Date
+                        </label>
+                        <Input
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-300">
+                        Add Equipment
+                      </label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {mockEquipment.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                          >
+                            <div>
+                              <p className="font-medium text-white">
+                                {item.name}
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                {formatCurrency(item.rate)} / day
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleAddItem(item)}
+                            >
+                              Add
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-300">
+                        Selected Items
+                      </label>
+                      {selectedItems.length === 0 ? (
+                        <p className="text-sm text-slate-500 italic">
+                          No items added yet.
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {selectedItems.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20"
+                            >
+                              <div className="flex-1">
+                                <p className="font-medium text-white">
+                                  {item.name}
+                                </p>
+                                <p className="text-xs text-slate-400">
+                                  {formatCurrency(item.rate)} x {item.days} days
+                                </p>
+                              </div>
+                              <div className="font-mono text-white">
+                                {formatCurrency(item.rate * item.days)}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-red-400 hover:text-red-300"
+                                onClick={() => handleRemoveItem(idx)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-300">
+                        Delivery Fee (LKR)
+                      </label>
+                      <Input
+                        type="number"
+                        value={deliveryFee}
+                        onChange={(e) => setDeliveryFee(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-300">
+                        Discount (LKR)
+                      </label>
+                      <Input
+                        type="number"
+                        value={discount}
+                        onChange={(e) => setDiscount(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                      <span className="font-medium text-white">VAT (18%)</span>
+                      <Button
+                        variant={vatEnabled ? 'amber' : 'outline'}
+                        size="sm"
+                        onClick={() => setVatEnabled(!vatEnabled)}
+                      >
+                        {vatEnabled ? 'Enabled' : 'Disabled'}
+                      </Button>
+                    </div>
+
+                    <div className="mt-6 space-y-2 pt-6 border-t border-white/10">
+                      <div className="flex justify-between text-sm text-slate-400">
+                        <span>Subtotal</span>
+                        <span>{formatCurrency(subtotal)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-slate-400">
+                        <span>Delivery</span>
+                        <span>{formatCurrency(deliveryFee)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-emerald-400">
+                        <span>Discount</span>
+                        <span>-{formatCurrency(discount)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-slate-400">
+                        <span>VAT (18%)</span>
+                        <span>{formatCurrency(vatAmount)}</span>
+                      </div>
+                      <div className="flex justify-between text-lg font-bold text-white pt-2 border-t border-white/10">
+                        <span>Total</span>
+                        <span>{formatCurrency(total)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {step === 4 && (
+                  <div className="space-y-6">
+                    <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
+                      <Check className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                      <h3 className="text-lg font-bold text-white">
+                        Ready to Generate
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        Review the details below before creating the quotation.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-slate-500">Customer</p>
+                        <p className="font-medium text-white">
+                          {customer || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-slate-500">Period</p>
+                        <p className="font-medium text-white">
+                          {startDate} to {endDate}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-slate-500 text-sm mb-2">
+                        Items ({selectedItems.length})
+                      </p>
+                      <div className="space-y-1">
+                        {selectedItems.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex justify-between text-sm"
+                          >
+                            <span className="text-slate-300">{item.name}</span>
+                            <span className="text-slate-400">
+                              {formatCurrency(item.rate * item.days)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-white/10">
+                      <div className="flex justify-between text-xl font-bold text-amber-500">
+                        <span>Total Amount</span>
+                        <span>{formatCurrency(total)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+
+              <div className="p-6 border-t border-white/5 flex justify-between bg-[#0a0f1a]/50">
+                <Button
+                  variant="outline"
+                  onClick={() => (step > 1 ? setStep(step - 1) : resetForm())}
+                >
+                  {step === 1 ? 'Cancel' : 'Back'}
+                </Button>
+
+                {step < 4 ? (
+                  <Button variant="amber" onClick={() => setStep(step + 1)}>
+                    Next Step <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button variant="amber" onClick={resetForm}>
+                    Create Quotation <FileCheck className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+              </div>
+            </Card>
+          </div>
+        )}
+      </div>
+    </Layout>
+  )
+}
+
+```
+```tailwind.config.js
+export default {}
+```
