@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 
@@ -15,7 +15,9 @@ async function bootstrap() {
   );
 
   const config = app.get(ConfigService);
-  app.setGlobalPrefix(config.get<string>('API_GLOBAL_PREFIX') ?? 'api/v1');
+  app.setGlobalPrefix(config.get<string>('API_GLOBAL_PREFIX') ?? 'api/v1', {
+    exclude: [{ path: '', method: RequestMethod.GET }],
+  });
   app.enableCors();
 
   await app.listen(config.get<number>('PORT') ?? 3001, '0.0.0.0');
